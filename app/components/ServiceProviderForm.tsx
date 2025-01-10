@@ -7,6 +7,7 @@ import "react-international-phone/style.css";
 import Link from "next/link";
 import { serviceProviderSignUp } from "../store/slices/authSlice";
 import { useRouter } from "next/navigation";
+import { FaCheckCircle } from "react-icons/fa";
 
 const services = [
   { id: 1, name: "Physical Activities" },
@@ -47,6 +48,12 @@ export default function ServiceProviderForm() {
       router.push("/dashboard");
     }
   };
+
+  const validForm =
+    email.length > 8 &&
+    password.length > 6 &&
+    fullName.length > 5 &&
+    selectedServices.length > 0;
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -219,13 +226,19 @@ export default function ServiceProviderForm() {
       </div>
       <button
         type="submit"
-        disabled={status === "loading" || !checked}
+        disabled={status === "loading" || !checked || !validForm}
         className={`mt-4 btn w-full lg:w-1/2 self-center bg-secondary hover:bg-secondary/80 border-none disabled:text-gray-300 text-primary disabled:bg-secondary/50 disabled:cursor-not-allowed`}
       >
         Register
       </button>
       {status === "failed" && (
         <p className="text-red-500 text-center"> {error}</p>
+      )}
+      {status === "succeeded" && (
+        <p className="alert border-none text-sm rounded-md ">
+          <FaCheckCircle className="text-5xl text-secondary" />
+          <span>Signed up successfully! Redirecting to your dashboard...</span>
+        </p>
       )}
     </form>
   );

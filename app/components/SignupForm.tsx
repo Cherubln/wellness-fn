@@ -1,15 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "../store";
 import { useRouter } from "next/navigation";
 import { signupUser } from "../store/slices/authSlice";
-import { PhoneInput } from "react-international-phone";
 import "react-international-phone/style.css";
-import ItemSearch from "./ItemSearch";
 import Link from "next/link";
-import { fetchAllUsers } from "../store/slices/usersSlice";
+import { FaCheckCircle } from "react-icons/fa";
 
 const SignupForm: React.FC = () => {
   // const [accountType, setAccountType] = useState("individual");
@@ -28,11 +25,7 @@ const SignupForm: React.FC = () => {
 
   const router = useRouter();
 
-  const { users, status } = useSelector((state: RootState) => state.users);
-
-  useEffect(() => {
-    dispatch(fetchAllUsers());
-  }, [dispatch]);
+  const { status } = useSelector((state: RootState) => state.auth);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +42,12 @@ const SignupForm: React.FC = () => {
       router.push("/dashboard");
     }
   };
+
+  const validForm =
+    email.length > 8 &&
+    password.length > 6 &&
+    fullName.length > 5 &&
+    username.length > 3;
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -237,7 +236,7 @@ const SignupForm: React.FC = () => {
       </div>
       <button
         type="submit"
-        disabled={signupStatus === "loading" || !checked}
+        disabled={signupStatus === "loading" || !checked || !validForm}
         className={`btn w-full self-center bg-secondary/80 hover:bg-secondary border-none text-white disabled:bg-secondary/50 disabled:cursor-not-allowed disabled:text-neutral/60
           `}
       >
@@ -262,8 +261,18 @@ const SignupForm: React.FC = () => {
               d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <span>{signupError}</span>
+          {status === "failed" && (
+            <p className="text-red-500 text-sm text-center mt-4">
+              {signupError}
+            </p>
+          )}
         </div>
+      )}
+      {status === "succeeded" && (
+        <p className="alert border-none text-sm rounded-md ">
+          <FaCheckCircle className="text-5xl text-secondary" />
+          <span>Signed up successfully! Redirecting to your dashboard...</span>
+        </p>
       )}
     </form>
   );

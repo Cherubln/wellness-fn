@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { signIn } from "../store/slices/authSlice";
 import { RootState, AppDispatch } from "../store";
 import { useRouter } from "next/navigation";
+import { FaCheckCircle } from "react-icons/fa";
 // import { FcGoogle } from "react-icons/fc";
 
 export default function LoginForm() {
@@ -49,6 +50,12 @@ export default function LoginForm() {
       </div>
       {status === "failed" && (
         <p className="text-red-500 text-sm text-center mt-4">{error}</p>
+      )}
+      {status === "succeeded" && (
+        <p className="alert border-none text-sm rounded-md ">
+          <FaCheckCircle className="text-5xl text-secondary" />
+          <span>Signed in successfully! Redirecting to your dashboard...</span>
+        </p>
       )}
       {/* signin with socials */}
       {/* <div className="flex flex-col gap-4">
