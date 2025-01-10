@@ -21,7 +21,12 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({
   const [groupName, setGroupName] = useState("");
   const [groupMembers, setgroupMembers] = useState<string[]>([]);
   const dispatch = useDispatch<AppDispatch>();
-  const { users, status } = useSelector((state: RootState) => state.allusers);
+  const { users, status } = useSelector((state: RootState) => state.users);
+  const auth = useSelector((state: RootState) => state.auth);
+
+  const { status: groupsStatus, error } = useSelector(
+    (state: RootState) => state.groups
+  );
 
   useEffect(() => {
     if (isOpen && status === "idle") {
@@ -29,16 +34,19 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({
     }
   }, [isOpen, status, dispatch]);
 
-  const handleCreateGroup = () => {
-    dispatch(createGroup({ name: groupName, members: groupMembers }));
-    onClose(false);
+  const handleCreateGroup = async () => {
+    await dispatch(
+      createGroup({ admin: auth.user._id!, groupName, members: groupMembers })
+    );
+
+    if (groupsStatus === "succeeded") onClose(false);
   };
 
   return (
     <>
       {isOpen && (
         <div className="modal modal-open ">
-          <div className="modal-box relative bg-primary">
+          <div className="modal-box relative bg-[var(--background)]">
             <button
               className="btn btn-sm btn-circle absolute right-2 top-2"
               onClick={() => onClose(false)}
@@ -60,14 +68,24 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({
             </div>
             <div className="form-control mb-4">
               <ItemSearch
-                items={users}
+                items={users.filter((usr) => usr._id !== auth.user._id)}
                 setfilteredItems={setgroupMembers}
                 filteredItems={groupMembers}
               />
             </div>
+
+            <p className="text-red-500 text-center">{error}</p>
             <div className="modal-action">
-              <button className="btn btn-primary" onClick={handleCreateGroup}>
-                Create
+              <button
+                className={`btn btn-sm hover:bg-secondary disabled:bg-neutral/40 disabled:text-neutral bg-secondary/50 border-none`}
+                onClick={handleCreateGroup}
+                disabled={
+                  groupMembers.length === 0 ||
+                  !groupName ||
+                  groupsStatus === "loading"
+                }
+              >
+                {groupsStatus === "loading" ? "Creating" : "Create"}
               </button>
             </div>
           </div>

@@ -9,12 +9,11 @@ import { serviceProviderSignUp } from "../store/slices/authSlice";
 import { useRouter } from "next/navigation";
 
 const services = [
-  { id: 1, name: "Outdoor Activities" },
-  { id: 2, name: "Dancing Classes" },
+  { id: 1, name: "Physical Activities" },
+  { id: 2, name: "Diagnostic services" },
   { id: 3, name: "Mental wellness" },
-  { id: 4, name: " Gym services" },
-  { id: 5, name: "Nutrition training" },
-  { id: 6, name: "Nutrition baskets" },
+  { id: 4, name: "Reward partners" },
+  { id: 5, name: "Nutrition" },
 ];
 
 export default function ServiceProviderForm() {
@@ -225,7 +224,9 @@ export default function ServiceProviderForm() {
       >
         Register
       </button>
-      {status === "failed" && <p>Error: {error}</p>}
+      {status === "failed" && (
+        <p className="text-red-500 text-center"> {error}</p>
+      )}
     </form>
   );
 }

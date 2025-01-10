@@ -1,8 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
 interface User {
-  id: string;
+  _id: string;
   fullname: string;
   points?: number;
   username?: string;
@@ -21,7 +23,7 @@ const initialState: UserState = {
 };
 
 export const fetchAllUsers = createAsyncThunk("users/fetchAll", async () => {
-  const response = await axios.get("http://localhost:5000/api/users");
+  const response = await axios.get(`${apiUrl}/api/users`);
   return response.data as User[];
 });
 

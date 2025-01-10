@@ -2,8 +2,10 @@ import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
 export interface IUser {
-  id?: string;
+  _id?: string;
   email: string;
   fullname: string;
   username: string;
@@ -17,7 +19,7 @@ export interface IUser {
 }
 
 export interface IServiceProvider {
-  id?: string;
+  _id?: string;
   name: string;
   email: string;
   phoneNumber?: string;
@@ -31,7 +33,7 @@ interface AuthState {
   token: string | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
-  user: IUser | IServiceProvider | null;
+  user: IUser | IServiceProvider;
 }
 
 const initialState: AuthState = {
@@ -39,7 +41,7 @@ const initialState: AuthState = {
   token: null,
   status: "idle",
   error: null,
-  user: null,
+  user: {} as IUser | IServiceProvider,
 };
 
 // Async thunk for sign-in
@@ -51,7 +53,7 @@ export const signIn = createAsyncThunk(
   ) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/users/signin",
+        `${apiUrl}/api/users/signin`,
         credentials
       );
       localStorage.setItem("token", response.data.token);
@@ -79,10 +81,7 @@ export const signupUser = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/users/signup",
-        userData
-      );
+      const response = await axios.post(`${apiUrl}/api/users/signup`, userData);
       localStorage.setItem("token", response.data.token);
       return { token: response.data.token };
     } catch (error) {
@@ -111,7 +110,8 @@ export const serviceProviderSignUp = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const endpoint = "http://localhost:5000/api/service-providers/signup";
+      const endpoint = `${apiUrl}/api/service-providers/signup`;
+
       const response = await axios.post(endpoint, userData);
       localStorage.setItem("token", response.data.token);
       return { token: response.data.token };
@@ -140,31 +140,34 @@ const authSlice = createSlice({
       state.isAuthenticated = action.payload.isAuthenticated;
       state.token = action.payload.token;
       //  add user state
-      if ("gender" in state.user! && "gender" in action.payload.user) {
-        state.user.id = action.payload.user.id;
-        state.user.email = action.payload.user.email;
-        state.user.fullname = action.payload.user.fullname;
-        state.user.username = action.payload.user.username;
-        state.user.groups = action.payload.user.groups;
-        state.user.gender = action.payload.user.gender;
-        state.user.phonenumber = action.payload.user.phonenumber;
-        state.user.points = action.payload.user.points;
-        state.user.role = action.payload.user.role;
-        state.user.profilePicture = action.payload.user.profilePicture;
-      } else if ("name" in state.user! && "name" in action.payload.user) {
-        state.user.id = action.payload.user.id;
-        state.user.name = action.payload.user.name;
-        state.user.email = action.payload.user.email;
-        state.user.logo = action.payload.user.logo;
-        state.user.phoneNumber = action.payload.user.phoneNumber;
-        state.user.services = action.payload.user.services;
-        state.user.role = action.payload.user.role;
+      if (action.payload.user.role === "user") {
+        (state.user as IUser)._id = action.payload.user._id;
+        (state.user as IUser).email = action.payload.user.email;
+        (state.user as IUser).fullname = action.payload.user.fullname;
+        (state.user as IUser).username = action.payload.user.username;
+        (state.user as IUser).groups = action.payload.user.groups;
+        (state.user as IUser).gender = action.payload.user.gender;
+        (state.user as IUser).phonenumber = action.payload.user.phonenumber;
+        (state.user as IUser).points = action.payload.user.points;
+        (state.user as IUser).role = action.payload.user.role;
+        (state.user as IUser).profilePicture =
+          action.payload.user.profilePicture;
+      } else {
+        (state.user as IServiceProvider)._id = action.payload.user._id;
+        (state.user as IServiceProvider).name = action.payload.user.name;
+        (state.user as IServiceProvider).email = action.payload.user.email;
+        (state.user as IServiceProvider).logo = action.payload.user.logo;
+        (state.user as IServiceProvider).phoneNumber =
+          action.payload.user.phoneNumber;
+        (state.user as IServiceProvider).services =
+          action.payload.user.services;
+        (state.user as IServiceProvider).role = action.payload.user.role;
       }
     },
     logout: (state) => {
       state.isAuthenticated = false;
       state.token = null;
-      state.user = null;
+      state.user = {} as IUser | IServiceProvider;
       localStorage.removeItem("token");
     },
   },
@@ -173,6 +176,9 @@ const authSlice = createSlice({
       .addCase(signIn.pending, (state) => {
         state.status = "loading";
         state.error = null;
+        state.isAuthenticated = false;
+        state.token = null;
+        state.user = {} as IUser | IServiceProvider;
       })
       .addCase(
         signIn.fulfilled,
@@ -180,31 +186,30 @@ const authSlice = createSlice({
           const tokenData = jwtDecode<IServiceProvider | IUser>(
             action.payload.token
           );
-          console.log(tokenData);
-
           state.status = "succeeded";
           state.isAuthenticated = true;
           state.token = action.payload.token;
           // add user state
-          if ("gender" in tokenData && "gender" in state.user!) {
-            state.user!.id = tokenData.id;
+          if (tokenData.role === "user") {
+            state.user!._id = tokenData._id;
             state.user!.email = tokenData.email;
-            state.user!.fullname = tokenData.fullname;
-            state.user!.username = tokenData.username;
-            state.user!.groups = tokenData.groups;
-            state.user!.gender = tokenData.gender;
-            state.user!.phonenumber = tokenData.phonenumber;
-            state.user!.points = tokenData.points;
-            state.user!.role = tokenData.role;
-            state.user!.profilePicture = tokenData.profilePicture;
-          } else if ("name" in state.user! && "name" in tokenData) {
-            state.user.id = tokenData.id;
-            state.user.name = tokenData.name;
-            state.user.email = tokenData.email;
-            state.user.logo = tokenData.logo;
-            state.user.phoneNumber = tokenData.phoneNumber;
-            state.user.services = tokenData.services;
-            state.user.role = tokenData.role;
+            (state.user as IUser).fullname = tokenData.fullname;
+            (state.user as IUser).username = tokenData.username;
+            (state.user as IUser).groups = tokenData.groups;
+            (state.user as IUser).gender = tokenData.gender;
+            (state.user as IUser).phonenumber = tokenData.phonenumber;
+            (state.user as IUser).points = tokenData.points;
+            (state.user as IUser).role = tokenData.role;
+            (state.user as IUser).profilePicture = tokenData.profilePicture;
+          } else {
+            (state.user as IServiceProvider)._id = tokenData._id;
+            (state.user as IServiceProvider).name = tokenData.name;
+            (state.user as IServiceProvider).email = tokenData.email;
+            (state.user as IServiceProvider).logo = tokenData.logo;
+            (state.user as IServiceProvider).phoneNumber =
+              tokenData.phoneNumber;
+            (state.user as IServiceProvider).services = tokenData.services;
+            (state.user as IServiceProvider).role = tokenData.role;
           }
         }
       )
@@ -215,6 +220,9 @@ const authSlice = createSlice({
       .addCase(signupUser.pending, (state) => {
         state.status = "loading";
         state.error = null;
+        state.isAuthenticated = false;
+        state.token = null;
+        state.user = {} as IUser | IServiceProvider;
       })
       .addCase(
         signupUser.fulfilled,
@@ -225,7 +233,7 @@ const authSlice = createSlice({
           state.token = action.payload.token;
           //  add user state here
 
-          (state.user as IUser).id = tokenData.id;
+          (state.user as IUser)._id = tokenData._id;
           (state.user as IUser).email = tokenData.email;
           (state.user as IUser).fullname = tokenData.fullname;
           (state.user as IUser).username = tokenData.username;
@@ -244,6 +252,9 @@ const authSlice = createSlice({
       .addCase(serviceProviderSignUp.pending, (state) => {
         state.status = "loading";
         state.error = null;
+        state.isAuthenticated = false;
+        state.token = null;
+        state.user = {} as IUser | IServiceProvider;
       })
       .addCase(
         serviceProviderSignUp.fulfilled,
@@ -254,7 +265,7 @@ const authSlice = createSlice({
           state.token = action.payload.token;
           //  add user state here
 
-          (state.user as IServiceProvider).id = tokenData.id;
+          (state.user as IServiceProvider)._id = tokenData._id;
           (state.user as IServiceProvider).email = tokenData.email;
           (state.user as IServiceProvider).name = tokenData.name;
           (state.user as IServiceProvider).phoneNumber = tokenData.phoneNumber;

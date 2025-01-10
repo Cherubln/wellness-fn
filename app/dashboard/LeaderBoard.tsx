@@ -27,7 +27,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ data }) => {
         Leaderboard
       </h2>
       <div className="flex  gap-2 justify-between items-center">
-        <label className="input input-bordered flex items-center gap-2 input-sm w-1/2">
+        <label className="input input-bordered flex items-center gap-2  w-1/2">
           <input
             type="text"
             className="grow"
@@ -39,7 +39,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ data }) => {
         </label>
 
         <select
-          className="select select-bordered w-1/2 select-sm"
+          className="select select-bordered w-1/2 "
           onChange={(e) => setSortType(e.target.value)}
           defaultValue={sortType}
         >
@@ -53,8 +53,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ data }) => {
         </select>
       </div>
       <div className="mt-4 shadow-md rounded-lg">
-        <table className="table-auto w-full table-xs">
-          <thead className="text-sm">
+        <table className="table-auto w-full">
+          <thead className="text-">
             <tr>
               <th className="px-4 py-2">No</th>
               <th className="px-4 py-2">Name</th>

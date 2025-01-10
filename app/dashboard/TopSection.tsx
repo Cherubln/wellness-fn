@@ -11,12 +11,18 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "../store";
 
 interface TopSectionProps {
-  avatar?: string;
-  username: string;
-  role: string;
+  user: {
+    username?: string;
+    name?: string;
+    fullname?: string;
+    role: string;
+    profilePicture?: string;
+    logo?: string;
+    email?: string;
+  };
 }
 
-const TopSection: React.FC<TopSectionProps> = ({ avatar, username, role }) => {
+const TopSection: React.FC<TopSectionProps> = ({ user }) => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
 
@@ -26,16 +32,16 @@ const TopSection: React.FC<TopSectionProps> = ({ avatar, username, role }) => {
   };
 
   return (
-    <div className="drawer">
+    <div className="drawer z-50">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         {/* Page content here */}
         <div className="flex justify-between items-center p-4 bg-base-100 ">
           <div className="flex items-center">
             <label htmlFor="my-drawer" className="drawer-button cursor-pointer">
-              {avatar ? (
+              {user.profilePicture || user.logo ? (
                 <Image
-                  src={avatar}
+                  src={user.profilePicture! || user.logo!}
                   alt="User Avatar"
                   width={40}
                   height={40}
@@ -47,13 +53,14 @@ const TopSection: React.FC<TopSectionProps> = ({ avatar, username, role }) => {
             </label>
             <div className="ml-3">
               <p className="text-sm sm:text-lg font-semibold">
-                {role === "user" ? "Hello" : "Welcome"}, {username}!
+                {user.role === "user" ? "Hello" : "Welcome"},{" "}
+                {user.username || user.name}!
               </p>{" "}
             </div>
           </div>
           <div className="flex items-center space-x-4">
             <FaBell className="text-xl sm:text-2xl text-gray-600" />
-            {role === "user" && (
+            {user.role === "user" && (
               <Link href="/scan">
                 <BsQrCodeScan className="text-xl sm:text-2xl text-gray-600" />
               </Link>
@@ -76,8 +83,12 @@ const TopSection: React.FC<TopSectionProps> = ({ avatar, username, role }) => {
               <div className="flex items-center">
                 <FaUserCircle className="text-4xl text-gray-600" />
                 <div className="flex flex-col text-sm ml-1">
-                  <span className="font-bold">{username}</span>
-                  <span>Cherubin Ndikubwayo</span>
+                  <span className="font-bold">
+                    {user.username || user.name}
+                  </span>
+                  <span className="capitalize">
+                    {user.fullname || user.role.replace("_", " ")}
+                  </span>
                 </div>
               </div>
             </li>

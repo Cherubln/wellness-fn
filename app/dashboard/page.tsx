@@ -4,15 +4,15 @@ import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../store";
 import { isTokenValid } from "../utils/auth";
-import { logout } from "../store/slices/authSlice";
+import { IUser, logout } from "../store/slices/authSlice";
 import TopSection from "./TopSection";
 import PointsSection from "./PointsSection";
 import WidgetsSection from "./WidgetsSection";
 import Leaderboard from "./LeaderBoard";
 import TeamsBoard from "./TeamsBoard";
-import ServiceCard from "./ServiceCard";
 import useAuth from "@/app/hooks/useAuth";
 import { fetchAllUsers } from "@/app/store/slices/usersSlice";
+import ServicesBoard from "./ServicesBoard";
 
 const Dashboard = () => {
   useAuth();
@@ -20,36 +20,18 @@ const Dashboard = () => {
   const dispatch = useDispatch<AppDispatch>();
   const auth = useSelector((state: RootState) => state.auth);
 
-  const user = useSelector((state: RootState) => state.user);
-
-  const { users } = useSelector((state: RootState) => state.allusers);
+  const { users } = useSelector((state: RootState) => state.users);
 
   useEffect(() => {
     dispatch(fetchAllUsers());
-  }, []);
+  }, [dispatch]);
 
-  const isAuth = auth.isAuthenticated || user.isAuthenticated;
-
-  console.log({ user, auth });
+  const isAuth = auth.isAuthenticated;
 
   const leaderboardData = users;
   const [selectedWidget, setSelectedWidget] = useState<string | null>(
-    "Leaderboard"
+    auth.user.role === "user" ? "Leaderboard" : "Services"
   );
-
-  const teamboardData = [
-    { name: "Team 1", points: 1000 },
-    { name: "Team 2", points: 900 },
-    { name: "Team 3", points: 800 },
-  ]; // Replace with actual team data
-
-  const services = [
-    { id: 1, name: "Physical Activities" },
-    { id: 2, name: "Diagnostic services" },
-    { id: 3, name: "Mental wellness" },
-    { id: 4, name: "Reward partners" },
-    { id: 5, name: "Nutrition" },
-  ];
 
   const handleWidgetClick = (widget: string) => {
     setSelectedWidget(widget);
@@ -60,35 +42,26 @@ const Dashboard = () => {
       dispatch(logout());
       router.push("/");
     }
-  });
+  }, [dispatch, router]);
 
   if (isAuth) {
     return (
-      <div>
-        <TopSection
-          username={auth.user.name! || user.user.name!}
-          role={auth.role! || user.role!}
-        />
-        <PointsSection value={100} role={auth.role! || user.role!} />
+      <div className="md:container md:mx-auto md:max-w-4xl">
+        <TopSection user={auth.user} />
+        {auth.user.role === "user" && (
+          <PointsSection user={auth.user as IUser} />
+        )}
         <WidgetsSection
-          role={auth.role! || user.role!}
+          role={auth.user.role}
           selectedWidget={selectedWidget}
           onWidgetClick={handleWidgetClick}
         />
         {selectedWidget === "Leaderboard" && (
           <Leaderboard data={leaderboardData} />
         )}
-        {selectedWidget === "Teams" && <TeamsBoard data={teamboardData} />}
+        {selectedWidget === "Teams" && <TeamsBoard userId={auth.user._id!} />}
         {selectedWidget === "Services" && (
-          <div>
-            {services.map((service, index) => (
-              <ServiceCard
-                key={index}
-                serviceName={service.name}
-                onEdit={() => {}}
-              />
-            ))}
-          </div>
+          <ServicesBoard providerId={auth.user._id!} />
         )}
       </div>
     );

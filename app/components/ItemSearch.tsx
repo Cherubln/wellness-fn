@@ -5,7 +5,7 @@ const ItemSearch = ({
   filteredItems,
   setfilteredItems,
 }: {
-  items: { fullname: string; id: string }[];
+  items: { fullname: string; _id: string }[];
   filteredItems: string[];
   setfilteredItems: (items: string[]) => void;
 }) => {
@@ -21,6 +21,7 @@ const ItemSearch = ({
     } else {
       setfilteredItems([...filteredItems, user]);
     }
+    setSearchTerm("");
   };
 
   const filteredUsers = items.filter((user) =>
@@ -29,6 +30,9 @@ const ItemSearch = ({
 
   return (
     <div className="relative">
+      <label className="label">
+        <span className="label-text">Group Members</span>
+      </label>
       <input
         type="text"
         value={searchTerm}
@@ -43,8 +47,8 @@ const ItemSearch = ({
           ) : (
             filteredUsers.map((user) => (
               <li
-                key={user.id}
-                onClick={() => handleUserClick(user.id)}
+                key={user._id}
+                onClick={() => handleUserClick(user._id)}
                 className={`p-2 cursor-pointer text-black ${
                   filteredItems.includes(user.fullname) ? "bg-blue-100" : ""
                 }`}
@@ -62,7 +66,15 @@ const ItemSearch = ({
         {filteredItems.map((user) => {
           return (
             <span key={user} className="badge bg-secondary/50 p-3">
-              {items.find((u) => u.id === user)?.fullname}
+              {items.find((u) => u._id === user)?.fullname}
+              <button
+                onClick={() =>
+                  setfilteredItems(filteredItems.filter((u) => u !== user))
+                }
+                className="ml-2 text-red-500"
+              >
+                ✖
+              </button>
             </span>
           );
         })}

@@ -1,10 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { IUser } from "./authSlice";
+
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 interface Group {
   _id: string;
   groupName: string;
-  members: string[];
+  members: IUser[];
   admin: string;
 }
 
@@ -21,39 +24,34 @@ const initialState: GroupState = {
 };
 
 // Thunks for each async operation
-export const fetchGroups = createAsyncThunk("groups/fetchAll", async () => {
-  const response = await axios.get("http://localhost:5000/api/groups");
-  return response.data as Group[];
-});
+export const fetchGroups = createAsyncThunk(
+  "groups/fetchAll",
+  async (userId: string) => {
+    const response = await axios.get(`${apiUrl}/api/groups/user/${userId}`);
+    return response.data as Group[];
+  }
+);
 
 export const fetchGroupById = createAsyncThunk(
   "groups/fetchById",
   async (groupId: string) => {
-    const response = await axios.get(
-      `http://localhost:5000/api/groups/${groupId}`
-    );
+    const response = await axios.get(`${apiUrl}/api/groups/${groupId}`);
     return response.data as Group;
   }
 );
 
 export const createGroup = createAsyncThunk(
   "groups/create",
-  async (group: Omit<Group, "_id">) => {
-    const response = await axios.post(
-      "http://localhost:5000/api/groups",
-      group
-    );
-    return response.data as Group;
+  async (group: { admin: string; members: string[]; groupName: string }) => {
+    const response = await axios.post(`${apiUrl}/api/groups`, group);
+    return response.data as Group[];
   }
 );
 
 export const updateGroup = createAsyncThunk(
   "groups/update",
   async ({ id, group }: { id: string; group: Partial<Group> }) => {
-    const response = await axios.put(
-      `http://localhost:5000/api/groups/${id}`,
-      group
-    );
+    const response = await axios.put(`${apiUrl}/api/groups/${id}`, group);
     return response.data as Group;
   }
 );
@@ -61,7 +59,7 @@ export const updateGroup = createAsyncThunk(
 export const deleteGroup = createAsyncThunk(
   "groups/delete",
   async (groupId: string) => {
-    await axios.delete(`http://localhost:5000/api/groups/${groupId}`);
+    await axios.delete(`${apiUrl}/api/groups/${groupId}`);
     return groupId;
   }
 );
@@ -70,7 +68,7 @@ export const addMember = createAsyncThunk(
   "groups/addMember",
   async ({ groupId, memberId }: { groupId: string; memberId: string }) => {
     const response = await axios.put(
-      `http://localhost:5000/api/groups/${groupId}/add-member`,
+      `${apiUrl}/api/groups/${groupId}/add-member`,
       { memberId }
     );
     return response.data as Group;
@@ -81,7 +79,7 @@ export const removeMember = createAsyncThunk(
   "groups/removeMember",
   async ({ groupId, memberId }: { groupId: string; memberId: string }) => {
     const response = await axios.put(
-      `http://localhost:5000/api/groups/${groupId}/remove-member`,
+      `${apiUrl}/api/groups/${groupId}/remove-member`,
       { memberId }
     );
     return response.data as Group;
@@ -123,7 +121,7 @@ const groupSlice = createSlice({
       })
       .addCase(createGroup.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.groups.push(action.payload);
+        state.groups = action.payload;
       })
       .addCase(createGroup.rejected, (state, action) => {
         state.status = "failed";

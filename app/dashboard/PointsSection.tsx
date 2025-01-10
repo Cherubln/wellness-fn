@@ -1,19 +1,16 @@
 import React from "react";
 
 interface BalanceSectionProps {
-  value: number;
-  role: string;
+  user: {
+    points?: number;
+  };
 }
 
-const PointsSection: React.FC<BalanceSectionProps> = ({ value, role }) => {
+const PointsSection: React.FC<BalanceSectionProps> = ({ user }) => {
   return (
     <div className="flex flex-col items-center justify-center p-4 bg-base-100">
-      {" "}
-      <p className="text-lg font-semibold">
-        {" "}
-        {role === "service_provider" ? "Total Scans" : "Points"}{" "}
-      </p>{" "}
-      <p className="text-4xl my-1 text-secondary font-bold">{value}</p>{" "}
+      <p className="text-lg font-semibold">Points</p>
+      <p className="text-4xl my-1 text-secondary font-bold">{user.points}</p>
     </div>
   );
 };

@@ -1,7 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-interface Service {
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+export interface Service {
   _id: string;
   activityName: string;
   availability: string;
@@ -25,28 +27,36 @@ const initialState: ServiceState = {
 };
 
 // Thunks for each async operation
-export const fetchServices = createAsyncThunk("services/fetchAll", async () => {
-  const response = await axios.get("http://localhost:5000/api/services");
-  return response.data as Service[];
-});
+export const fetchServices = createAsyncThunk(
+  "services/fetchAll",
+  async (providerId: string) => {
+    const response = await axios.get(
+      `${apiUrl}/api/services/provider/${providerId}`
+    );
+    return response.data as Service[];
+  }
+);
 
 export const fetchServiceById = createAsyncThunk(
   "services/fetchById",
   async (serviceId: string) => {
-    const response = await axios.get(
-      `http://localhost:5000/api/services/${serviceId}`
-    );
+    const response = await axios.get(`${apiUrl}/api/services/${serviceId}`);
     return response.data as Service;
   }
 );
 
 export const createService = createAsyncThunk(
   "services/create",
-  async (service: Omit<Service, "_id">) => {
-    const response = await axios.post(
-      "http://localhost:5000/api/services",
-      service
-    );
+  async (service: {
+    activityName: string;
+    availability: string;
+    description?: string;
+    location: string;
+    phoneContact?: string;
+    category: string;
+    provider: string;
+  }) => {
+    const response = await axios.post(`${apiUrl}/api/services`, service);
     return response.data as Service;
   }
 );
@@ -54,10 +64,7 @@ export const createService = createAsyncThunk(
 export const updateService = createAsyncThunk(
   "services/update",
   async ({ id, service }: { id: string; service: Partial<Service> }) => {
-    const response = await axios.put(
-      `http://localhost:5000/api/services/${id}`,
-      service
-    );
+    const response = await axios.put(`${apiUrl}/api/services/${id}`, service);
     return response.data as Service;
   }
 );
@@ -65,7 +72,7 @@ export const updateService = createAsyncThunk(
 export const deleteService = createAsyncThunk(
   "services/delete",
   async (serviceId: string) => {
-    await axios.delete(`http://localhost:5000/api/services/${serviceId}`);
+    await axios.delete(`${apiUrl}/api/services/${serviceId}`);
     return serviceId;
   }
 );
