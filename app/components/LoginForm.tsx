@@ -23,7 +23,7 @@ export default function LoginForm() {
     }
   };
 
-  const validForm = email.length > 8 && password.length > 6;
+  const validForm = email.length > 2 && password.length > 2;
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col text-sm">

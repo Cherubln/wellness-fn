@@ -50,9 +50,9 @@ export default function ServiceProviderForm() {
   };
 
   const validForm =
-    email.length > 8 &&
-    password.length > 6 &&
-    fullName.length > 5 &&
+    email.length > 2 &&
+    password.length > 2 &&
+    fullName.length > 2 &&
     selectedServices.length > 0;
 
   return (

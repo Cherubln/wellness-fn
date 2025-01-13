@@ -44,10 +44,10 @@ const SignupForm: React.FC = () => {
   };
 
   const validForm =
-    email.length > 8 &&
-    password.length > 6 &&
-    fullName.length > 5 &&
-    username.length > 3;
+    email.length > 2 &&
+    password.length > 2 &&
+    fullName.length > 2 &&
+    username.length > 2;
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
