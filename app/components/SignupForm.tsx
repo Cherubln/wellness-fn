@@ -23,11 +23,14 @@ const SignupForm: React.FC = () => {
   const signupStatus = useSelector((state: RootState) => state.auth.status);
   const signupError = useSelector((state: RootState) => state.auth.error);
 
+  const [isError, setIsError] = useState(false);
+
   const router = useRouter();
 
   const { status } = useSelector((state: RootState) => state.auth);
 
   const handleSubmit = async (e: React.FormEvent) => {
+    setIsError(false);
     e.preventDefault();
     const userData = {
       fullname: fullName,
@@ -39,15 +42,16 @@ const SignupForm: React.FC = () => {
     const resultAction = await dispatch(signupUser(userData));
 
     if (signupUser.fulfilled.match(resultAction)) {
+      setIsError(false);
       router.push("/dashboard");
-    }
+    } else if (signupError) setIsError(true);
   };
 
   const validForm =
-    email.length > 2 &&
-    password.length > 2 &&
-    fullName.length > 2 &&
-    username.length > 2;
+    email.length > 1 &&
+    password.length > 1 &&
+    fullName.length > 1 &&
+    username.length > 1;
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -242,7 +246,7 @@ const SignupForm: React.FC = () => {
       >
         Register
       </button>
-      {signupStatus === "failed" && (
+      {signupStatus === "failed" && isError && (
         // <p className="alert bg-red-400">{signupError}</p>
         <div
           role="alert"
@@ -268,7 +272,7 @@ const SignupForm: React.FC = () => {
           )}
         </div>
       )}
-      {status === "succeeded" && (
+      {status === "succeeded" && !isError && (
         <p className="alert border-none text-sm rounded-md ">
           <FaCheckCircle className="text-5xl text-secondary" />
           <span>Signed up successfully! Redirecting to your dashboard...</span>

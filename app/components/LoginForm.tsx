@@ -13,17 +13,20 @@ export default function LoginForm() {
   const dispatch = useDispatch<AppDispatch>();
   const { status, error } = useSelector((state: RootState) => state.auth);
   const router = useRouter();
+  const [isError, setIsError] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
+    setIsError(false);
     e.preventDefault();
     const resultAction = await dispatch(signIn({ email, password }));
 
     if (signIn.fulfilled.match(resultAction)) {
+      setIsError(false);
       router.push("/dashboard");
-    }
+    } else if (error) setIsError(true);
   };
 
-  const validForm = email.length > 2 && password.length > 2;
+  const validForm = email.length > 1 && password.length > 1;
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col text-sm">
@@ -48,10 +51,10 @@ export default function LoginForm() {
           {status === "loading" ? "Logging in..." : "Log in"}
         </button>
       </div>
-      {status === "failed" && (
+      {status === "failed" && isError && (
         <p className="text-red-500 text-sm text-center mt-4">{error}</p>
       )}
-      {status === "succeeded" && (
+      {status === "succeeded" && !isError && (
         <p className="alert border-none text-sm rounded-md ">
           <FaCheckCircle className="text-5xl text-secondary" />
           <span>Signed in successfully! Redirecting to your dashboard...</span>

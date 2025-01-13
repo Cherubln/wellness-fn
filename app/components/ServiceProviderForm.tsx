@@ -28,10 +28,12 @@ export default function ServiceProviderForm() {
   const [providerLogo, setProviderLogo] = useState("");
   const dispatch = useDispatch<AppDispatch>();
   const { status, error } = useSelector((state: RootState) => state.auth);
+  const [isError, setIsError] = useState(false);
 
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
+    setIsError(false);
     e.preventDefault();
     const userData = {
       name: fullName,
@@ -45,14 +47,15 @@ export default function ServiceProviderForm() {
     const resultAction = await dispatch(serviceProviderSignUp(userData));
 
     if (serviceProviderSignUp.fulfilled.match(resultAction)) {
+      setIsError(false);
       router.push("/dashboard");
-    }
+    } else if (error) setIsError(true);
   };
 
   const validForm =
-    email.length > 2 &&
-    password.length > 2 &&
-    fullName.length > 2 &&
+    email.length > 1 &&
+    password.length > 1 &&
+    fullName.length > 1 &&
     selectedServices.length > 0;
 
   return (
@@ -231,10 +234,10 @@ export default function ServiceProviderForm() {
       >
         Register
       </button>
-      {status === "failed" && (
+      {status === "failed" && isError && (
         <p className="text-red-500 text-center"> {error}</p>
       )}
-      {status === "succeeded" && (
+      {status === "succeeded" && !isError && (
         <p className="alert border-none text-sm rounded-md ">
           <FaCheckCircle className="text-5xl text-secondary" />
           <span>Signed up successfully! Redirecting to your dashboard...</span>
