@@ -16,6 +16,7 @@ export interface IUser {
   groups?: string[];
   role: "user";
   points?: number;
+  hasScanned?: string[];
 }
 
 export interface IServiceProvider {
@@ -26,6 +27,13 @@ export interface IServiceProvider {
   services: string[];
   logo?: string;
   role: "service_provider";
+  qrCode: {
+    _id: string;
+    name: string;
+    image: string;
+    updatedAt: string;
+    owner: string;
+  };
 }
 
 interface AuthState {
@@ -58,6 +66,22 @@ export const signIn = createAsyncThunk(
       );
       localStorage.setItem("token", response.data.token);
       return { token: response.data.token };
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data);
+      } else {
+        return rejectWithValue({ message: "An unknown error occurred" });
+      }
+    }
+  }
+);
+// Async thunk for getting a user by ID
+export const getUserById = createAsyncThunk(
+  "auth/getUserById",
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/users/${userId}`);
+      return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         return rejectWithValue(error.response.data);
@@ -125,6 +149,73 @@ export const serviceProviderSignUp = createAsyncThunk(
   }
 );
 
+export const scanForPoints = createAsyncThunk(
+  "auth/scan",
+  async (
+    { qrCodeID, userID }: { qrCodeID: string; userID: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const { data } = await axios.get(
+        `${apiUrl}/api/qrcodes/${qrCodeID}?userId=${userID}`
+      );
+      return data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data);
+      } else {
+        return rejectWithValue({ message: "An unknown error occurred" });
+      }
+    }
+  }
+);
+
+// Async thunk for creating a QR code
+export const createQRCode = createAsyncThunk(
+  "auth/createQRCode",
+  async (qrCodeData: { name: string; owner: string }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${apiUrl}/api/qrcodes/create`,
+        qrCodeData
+      );
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data);
+      } else {
+        return rejectWithValue({ message: "An unknown error occurred" });
+      }
+    }
+  }
+);
+
+// Async thunk for updating a QR code
+export const updateQRCode = createAsyncThunk(
+  "auth/updateQRCode",
+  async (
+    {
+      qrCodeId,
+      qrCodeData,
+    }: { qrCodeId: string; qrCodeData: { name: string; owner: string } },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axios.put(
+        `${apiUrl}/api/qrcodes/${qrCodeId}`,
+        qrCodeData
+      );
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data);
+      } else {
+        return rejectWithValue({ message: "An unknown error occurred" });
+      }
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -134,39 +225,39 @@ const authSlice = createSlice({
       action: PayloadAction<{
         isAuthenticated: boolean;
         token: string | null;
-        user: IServiceProvider | IUser;
+        user: IUser | IServiceProvider;
       }>
     ) => {
       state.isAuthenticated = action.payload.isAuthenticated;
       state.token = action.payload.token;
-      //  add user state
-      if (action.payload.user.role === "user") {
-        (state.user as IUser)._id = action.payload.user._id;
-        (state.user as IUser).email = action.payload.user.email;
-        (state.user as IUser).fullname = action.payload.user.fullname;
-        (state.user as IUser).username = action.payload.user.username;
-        (state.user as IUser).groups = action.payload.user.groups;
-        (state.user as IUser).gender = action.payload.user.gender;
-        (state.user as IUser).phonenumber = action.payload.user.phonenumber;
-        (state.user as IUser).points = action.payload.user.points;
-        (state.user as IUser).role = action.payload.user.role;
-        (state.user as IUser).profilePicture =
-          action.payload.user.profilePicture;
+      // add user state
+      const tokenData = action.payload.user;
+      if (tokenData.role === "user") {
+        state.user!._id = tokenData._id;
+        state.user!.email = tokenData.email;
+        (state.user as IUser).fullname = tokenData.fullname;
+        (state.user as IUser).username = tokenData.username;
+        (state.user as IUser).groups = tokenData.groups;
+        (state.user as IUser).gender = tokenData.gender;
+        (state.user as IUser).phonenumber = tokenData.phonenumber;
+        (state.user as IUser).points = tokenData.points;
+        (state.user as IUser).role = tokenData.role;
+        (state.user as IUser).profilePicture = tokenData.profilePicture;
       } else {
-        (state.user as IServiceProvider)._id = action.payload.user._id;
-        (state.user as IServiceProvider).name = action.payload.user.name;
-        (state.user as IServiceProvider).email = action.payload.user.email;
-        (state.user as IServiceProvider).logo = action.payload.user.logo;
-        (state.user as IServiceProvider).phoneNumber =
-          action.payload.user.phoneNumber;
-        (state.user as IServiceProvider).services =
-          action.payload.user.services;
-        (state.user as IServiceProvider).role = action.payload.user.role;
+        (state.user as IServiceProvider)._id = tokenData._id;
+        (state.user as IServiceProvider).name = tokenData.name;
+        (state.user as IServiceProvider).email = tokenData.email;
+        (state.user as IServiceProvider).logo = tokenData.logo;
+        (state.user as IServiceProvider).phoneNumber = tokenData.phoneNumber;
+        (state.user as IServiceProvider).services = tokenData.services;
+        (state.user as IServiceProvider).role = tokenData.role;
+        (state.user as IServiceProvider).qrCode = tokenData.qrCode;
       }
     },
     logout: (state) => {
       state.isAuthenticated = false;
       state.token = null;
+      state.status = "idle";
       state.user = {} as IUser | IServiceProvider;
       localStorage.removeItem("token");
     },
@@ -186,6 +277,7 @@ const authSlice = createSlice({
           const tokenData = jwtDecode<IServiceProvider | IUser>(
             action.payload.token
           );
+
           state.status = "succeeded";
           state.isAuthenticated = true;
           state.token = action.payload.token;
@@ -210,6 +302,7 @@ const authSlice = createSlice({
               tokenData.phoneNumber;
             (state.user as IServiceProvider).services = tokenData.services;
             (state.user as IServiceProvider).role = tokenData.role;
+            (state.user as IServiceProvider).qrCode = tokenData.qrCode;
           }
         }
       )
@@ -272,10 +365,107 @@ const authSlice = createSlice({
           (state.user as IServiceProvider).role = tokenData.role;
           (state.user as IServiceProvider).logo = tokenData.logo;
           (state.user as IServiceProvider).services = tokenData.services;
+          (state.user as IServiceProvider).qrCode = tokenData.qrCode;
         }
       )
       .addCase(
         serviceProviderSignUp.rejected,
+        (state, action: PayloadAction<unknown>) => {
+          state.status = "failed";
+          state.error = (action.payload as { message: string }).message;
+        }
+      )
+      // Scan for points
+      .addCase(scanForPoints.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(
+        scanForPoints.fulfilled,
+        (state, action: PayloadAction<{ points: number }>) => {
+          console.log(action.payload.points);
+
+          state.status = "succeeded";
+
+          (state.user as IUser).points! += action.payload.points;
+        }
+      )
+      // Get User
+      .addCase(getUserById.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(
+        getUserById.fulfilled,
+        (state, action: PayloadAction<IUser | IServiceProvider>) => {
+          state.status = "succeeded";
+          state.user = action.payload;
+        }
+      )
+      .addCase(
+        getUserById.rejected,
+        (state, action: PayloadAction<unknown>) => {
+          state.status = "failed";
+          state.error = (action.payload as { message: string }).message;
+        }
+      )
+      // Create QR Code
+      .addCase(createQRCode.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(
+        createQRCode.fulfilled,
+        (
+          state,
+          action: PayloadAction<{
+            _id: string;
+            name: string;
+            image: string;
+            updatedAt: string;
+          }>
+        ) => {
+          state.status = "succeeded";
+          // Handle the created QR code data if needed
+          (state.user as IServiceProvider).qrCode.image = action.payload.image;
+          (state.user as IServiceProvider).qrCode.name = action.payload.name;
+          (state.user as IServiceProvider).qrCode.updatedAt =
+            action.payload.updatedAt;
+          (state.user as IServiceProvider).qrCode._id = action.payload._id;
+        }
+      )
+      .addCase(
+        createQRCode.rejected,
+        (state, action: PayloadAction<unknown>) => {
+          state.status = "failed";
+          state.error = (action.payload as { message: string }).message;
+        }
+      )
+      // Update QR Code
+      .addCase(updateQRCode.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(
+        updateQRCode.fulfilled,
+        (
+          state,
+          action: PayloadAction<{
+            name: string;
+            image: string;
+            updatedAt: string;
+          }>
+        ) => {
+          state.status = "succeeded";
+          // Handle the updated QR code data if needed
+          (state.user as IServiceProvider).qrCode.image = action.payload.image;
+          (state.user as IServiceProvider).qrCode.name = action.payload.name;
+          (state.user as IServiceProvider).qrCode.updatedAt =
+            action.payload.updatedAt;
+        }
+      )
+      .addCase(
+        updateQRCode.rejected,
         (state, action: PayloadAction<unknown>) => {
           state.status = "failed";
           state.error = (action.payload as { message: string }).message;

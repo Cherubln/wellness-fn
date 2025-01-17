@@ -19,7 +19,7 @@ const TeamsBoard = ({ userId }: { userId: string }) => {
   return (
     <>
       <div className="p-4 bg-base-100 ">
-        <h2 className="text-lg font-semibold mb-4 text-center underline underline-offset-8">
+        <h2 className="font-semibold mb-4 text-center underline underline-offset-8">
           Your Teams
         </h2>
 

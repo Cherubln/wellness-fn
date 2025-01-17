@@ -29,10 +29,11 @@ const initialState: ServiceState = {
 // Thunks for each async operation
 export const fetchServices = createAsyncThunk(
   "services/fetchAll",
-  async (providerId: string) => {
-    const response = await axios.get(
-      `${apiUrl}/api/services/provider/${providerId}`
-    );
+  async (providerId?: string) => {
+    const url = providerId
+      ? `${apiUrl}/api/services?provider=${providerId}`
+      : `${apiUrl}/api/services`;
+    const response = await axios.get(url);
     return response.data as Service[];
   }
 );

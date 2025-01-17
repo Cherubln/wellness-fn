@@ -26,8 +26,10 @@ const initialState: GroupState = {
 // Thunks for each async operation
 export const fetchGroups = createAsyncThunk(
   "groups/fetchAll",
-  async (userId: string) => {
-    const response = await axios.get(`${apiUrl}/api/groups/user/${userId}`);
+  async (userId?: string) => {
+    const response = await axios.get(
+      `${apiUrl}/api/groups${userId ? `?user=${userId}` : ""}`
+    );
     return response.data as Group[];
   }
 );

@@ -6,7 +6,13 @@ import { FaPlus } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { fetchServices } from "../store/slices/serviceSlice";
 
-const ServicesBoard = ({ providerId }: { providerId: string }) => {
+const ServicesBoard = ({
+  role,
+  providerId,
+}: {
+  providerId: string;
+  role: string;
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { services, status } = useSelector(
     (state: RootState) => state.services
@@ -14,28 +20,34 @@ const ServicesBoard = ({ providerId }: { providerId: string }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    if (isModalOpen === false) dispatch(fetchServices(providerId));
-  }, [dispatch, isModalOpen, providerId]);
+    if (isModalOpen === false)
+      dispatch(fetchServices(role !== "user" ? providerId : undefined));
+  }, [dispatch, isModalOpen, providerId, role]);
 
   return (
     <div className="p-4 bg-base-100 ">
-      <h2 className="text-lg font-semibold mb-4 text-center underline underline-offset-8">
-        Your Services
+      <h2 className="font-semibold mb-4 text-center underline underline-offset-8">
+        {role === "user" ? "Activities" : "Your Services"}
       </h2>
 
       {services.length > 0 ? (
         <div className="">
-          <div className="flex justify-end mt-8 mb-4">
-            <button
-              className="btn bg-secondary/80 hover:bg-secondary text-white btn-sm border-none"
-              onClick={() => setIsModalOpen(true)}
-            >
-              <FaPlus className="" />
-              Add Service
-            </button>
-            <CreateServiceModal isOpen={isModalOpen} onClose={setIsModalOpen} />
-          </div>
-          <div className="flex flex-col gap-4">
+          {role !== "user" && (
+            <div className="flex justify-end mt-8 mb-4">
+              <button
+                className="btn bg-secondary/80 hover:bg-secondary text-white btn-sm border-none"
+                onClick={() => setIsModalOpen(true)}
+              >
+                <FaPlus className="" />
+                Add Service
+              </button>
+              <CreateServiceModal
+                isOpen={isModalOpen}
+                onClose={setIsModalOpen}
+              />
+            </div>
+          )}
+          <div className="flex flex-col sm:flex-row gap-4 flex-wrap mt-8">
             {services.map((entry) => (
               <ServiceCard key={entry._id} service={entry} onEdit={() => {}} />
             ))}
@@ -45,7 +57,7 @@ const ServicesBoard = ({ providerId }: { providerId: string }) => {
         <div className="text-sm my-4 py-10 text-center">
           <span className="loading loading-ring loading-lg"></span>
         </div>
-      ) : (
+      ) : role !== "user" ? (
         <div className="text-sm my-4 py-10 text-center">
           You have not created any service yet
           <div className="flex justify-center mt-8">
@@ -58,6 +70,10 @@ const ServicesBoard = ({ providerId }: { providerId: string }) => {
             </button>
             <CreateServiceModal isOpen={isModalOpen} onClose={setIsModalOpen} />
           </div>
+        </div>
+      ) : (
+        <div className="text-sm my-4 py-10 text-center">
+          No Services available yet
         </div>
       )}
     </div>

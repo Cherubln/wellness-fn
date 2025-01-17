@@ -1,23 +1,35 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
+  getUserById,
   IServiceProvider,
   IUser,
-  setAuthState,
 } from "../store/slices/authSlice";
 import { jwtDecode } from "jwt-decode";
+import { AppDispatch, RootState } from "../store";
 
 const useAuth = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
+  // get user from using the useSelector function
+  const user = useSelector((state: RootState) => state.auth.user);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const fetchData = async () => {
+      const token = localStorage.getItem("token");
+      // decode token to get _id
+      const decodedToken = jwtDecode<IUser | IServiceProvider>(token!);
+      const userId = decodedToken._id!;
 
-    if (token) {
-      const user = jwtDecode<IUser | IServiceProvider>(token);
-      dispatch(setAuthState({ isAuthenticated: true, token, user }));
-    }
+      // call getUserById from authSlice
+      await dispatch(getUserById(userId));
+
+      if (token) {
+        console.log({ user });
+      }
+    };
+    if (!user._id) fetchData();
   }, [dispatch]);
 };
 

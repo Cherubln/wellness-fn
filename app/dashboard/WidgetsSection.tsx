@@ -27,6 +27,10 @@ const WidgetsSection: React.FC<WidgetsSectionProps> = ({
             label: "Leaderboard",
           },
           {
+            icon: <FaBriefcase className="text-2xl " />,
+            label: "Activities",
+          },
+          {
             icon: <FaUsers className="text-2xl " />,
             label: "Teams",
           },
@@ -48,7 +52,7 @@ const WidgetsSection: React.FC<WidgetsSectionProps> = ({
             {widget.icon}
           </div>
           <p
-            className={`text-sm mt-1 font-semibold text-center ${
+            className={`text-sm mt-1 font-semibold text-center w-min ${
               selectedWidget === widget.label ? "text-secondary" : ""
             }`}
           >

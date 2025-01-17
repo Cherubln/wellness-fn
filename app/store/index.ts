@@ -1,8 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import usersReducer from "./slices/usersSlice";
 import authReducer from "./slices/authSlice";
-import scanResults from "./scan/scanResSlice";
-import userInfo from "./user/user";
+
 import groupsReducer from "./slices/groupsSlice";
 import serviceReducer from "./slices/serviceSlice";
 
@@ -12,9 +11,6 @@ const store = configureStore({
     users: usersReducer,
     groups: groupsReducer,
     services: serviceReducer,
-    // TBD
-    scanResults,
-    userInfo,
   },
 });
 

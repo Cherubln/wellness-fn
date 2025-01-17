@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../store";
 import { isTokenValid } from "../utils/auth";
-import { IUser, logout } from "../store/slices/authSlice";
+import { logout } from "../store/slices/authSlice";
 import TopSection from "./TopSection";
 import PointsSection from "./PointsSection";
 import WidgetsSection from "./WidgetsSection";
@@ -21,12 +21,11 @@ const Dashboard = () => {
   const auth = useSelector((state: RootState) => state.auth);
 
   const { users } = useSelector((state: RootState) => state.users);
+  const { services } = useSelector((state: RootState) => state.services);
 
   useEffect(() => {
     dispatch(fetchAllUsers());
   }, [dispatch]);
-
-  const isAuth = auth.isAuthenticated;
 
   const leaderboardData = users;
   const [selectedWidget, setSelectedWidget] = useState<string | null>(
@@ -44,13 +43,11 @@ const Dashboard = () => {
     }
   }, [dispatch, router]);
 
-  if (isAuth) {
+  if (auth.user.role) {
     return (
       <div className="md:container md:mx-auto md:max-w-4xl">
         <TopSection user={auth.user} />
-        {auth.user.role === "user" && (
-          <PointsSection user={auth.user as IUser} />
-        )}
+        <PointsSection user={auth.user} isServiceExist={services.length > 0} />
         <WidgetsSection
           role={auth.user.role}
           selectedWidget={selectedWidget}
@@ -60,8 +57,8 @@ const Dashboard = () => {
           <Leaderboard data={leaderboardData} />
         )}
         {selectedWidget === "Teams" && <TeamsBoard userId={auth.user._id!} />}
-        {selectedWidget === "Services" && (
-          <ServicesBoard providerId={auth.user._id!} />
+        {(selectedWidget === "Services" || selectedWidget === "Activities") && (
+          <ServicesBoard providerId={auth.user._id!} role={auth.user.role} />
         )}
       </div>
     );

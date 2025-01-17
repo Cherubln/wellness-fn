@@ -87,7 +87,7 @@ const TopSection: React.FC<TopSectionProps> = ({ user }) => {
                     {user.username || user.name}
                   </span>
                   <span className="capitalize">
-                    {user.fullname || user.role.replace("_", " ")}
+                    {user.fullname || user.role}
                   </span>
                 </div>
               </div>
