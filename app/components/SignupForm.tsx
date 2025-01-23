@@ -13,7 +13,6 @@ const SignupForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [username, setUsername] = useState("");
   // const [phoneNumber, setPhoneNumber] = useState("");
   // const [gender, setGender] = useState("other");
   // const [groupName, setGroupName] = useState("");
@@ -32,10 +31,19 @@ const SignupForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     setIsError(false);
     e.preventDefault();
+    const generateUsername = (fullName: string) => {
+      const baseUsername = fullName.toLowerCase().split(" ")[0].slice(0, 8);
+      const randomPart = Math.floor(Math.random() * 1000).toString();
+      const timestampPart = Date.now().toString().slice(-4);
+      const username = `${baseUsername}${randomPart}${timestampPart}`;
+      return username.slice(0, 12);
+    };
+
     const userData = {
       fullname: fullName,
       email,
-      username,
+      // generate automatically unique username based on fullName
+      username: generateUsername(fullName),
       password,
     };
 
@@ -48,10 +56,7 @@ const SignupForm: React.FC = () => {
   };
 
   const validForm =
-    email.length > 1 &&
-    password.length > 1 &&
-    fullName.length > 1 &&
-    username.length > 1;
+    email.length > 1 && password.length > 1 && fullName.length > 1;
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -92,16 +97,6 @@ const SignupForm: React.FC = () => {
           className="input input-bordered w-full text-sm"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
-          required
-        />
-      </div>
-      <div className="w-full">
-        <input
-          type="text"
-          placeholder="Username"
-          className="input input-bordered w-full text-sm"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
           required
         />
       </div>

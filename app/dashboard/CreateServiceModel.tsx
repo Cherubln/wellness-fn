@@ -1,10 +1,9 @@
-// components/CreateTeamModal.tsx
+// components/CreateServiceModal.tsx
 "use client";
 import React, { useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "@/app/store";
-// import { fetchAllUsers } from "@/app/store/slices/usersSlice";
 import { createService } from "@/app/store/slices/serviceSlice";
 import { RootState } from "@/app/store";
 
@@ -30,33 +29,96 @@ const CreateServiceModal: React.FC<CreateServiceModalProps> = ({
   const [description, setDescription] = useState("");
   const [selectedServiceCategory, setSelectedServiceCategory] =
     useState<string>("");
-
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const dispatch = useDispatch<AppDispatch>();
   const { status, error } = useSelector((state: RootState) => state.services);
   const { user } = useSelector((state: RootState) => state.auth);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files!);
+    const validFiles: File[] = [];
+    let invalidFile = false;
+
+    files.forEach((file) => {
+      if (errorMessage) {
+        setImageFiles([]);
+        setErrorMessage(null);
+      }
+      if (file.size <= 2 * 1024 * 1024) {
+        validFiles.push(file);
+      } else {
+        invalidFile = true;
+      }
+    });
+
+    if (invalidFile) {
+      setErrorMessage(
+        "Some files exceeded the 2MB size limit and were not added."
+      );
+    } else {
+      setErrorMessage(null);
+    }
+
+    if (validFiles.length + imageFiles.length <= 3) {
+      setImageFiles([...imageFiles, ...validFiles]);
+    } else {
+      alert("You can only upload up to 3 images.");
+    }
+  };
+
   const handleCreateService = async () => {
-    await dispatch(
-      createService({
-        activityName: serviceName,
-        location,
-        availability,
-        description,
-        category: selectedServiceCategory,
-        provider: user._id!,
-      })
-    );
-    if (status === "succeeded") onClose(false);
+    const readerPromises = imageFiles.map((file) => {
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (reader.result) {
+            resolve(reader.result as string);
+          } else {
+            reject("Failed to read file.");
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    try {
+      const base64Images = await Promise.all(readerPromises);
+      await dispatch(
+        createService({
+          activityName: serviceName,
+          location,
+          availability,
+          description,
+          category: selectedServiceCategory,
+          provider: user._id!,
+          images: base64Images,
+        })
+      );
+      if (status === "succeeded") onClose(false);
+    } catch (error) {
+      console.error("Error uploading images:", error);
+    }
   };
 
   return (
     <>
       {isOpen && (
-        <div className="modal modal-open ">
+        <div className="modal modal-open">
           <div className="modal-box relative bg-[var(--background)]">
             <button
               className="btn btn-sm btn-circle absolute right-2 top-2"
-              onClick={() => onClose(false)}
+              onClick={() => {
+                // reset all fields here before closing the modal
+                setServiceName("");
+                setAvailability("");
+                setLocation("");
+                setDescription("");
+                setSelectedServiceCategory("");
+                setImageFiles([]);
+                setErrorMessage(null);
+                onClose(false);
+              }}
             >
               <FaTimes />
             </button>
@@ -71,6 +133,7 @@ const CreateServiceModal: React.FC<CreateServiceModalProps> = ({
                 className="input input-bordered"
                 value={serviceName}
                 onChange={(e) => setServiceName(e.target.value)}
+                required
               />
             </div>
             <div className="form-control mb-4">
@@ -95,6 +158,7 @@ const CreateServiceModal: React.FC<CreateServiceModalProps> = ({
                 className="input input-bordered"
                 value={availability}
                 onChange={(e) => setAvailability(e.target.value)}
+                required
               />
             </div>
             <div className="form-control mb-4">
@@ -103,14 +167,30 @@ const CreateServiceModal: React.FC<CreateServiceModalProps> = ({
               </label>
               <input
                 type="text"
-                placeholder="A google map link to your location"
+                placeholder="A Google Map link to your location"
                 className="input input-bordered"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
+                required
               />
             </div>
+            <div className="form-control mb-4">
+              <label className="label">
+                <span className="label-text">Upload Images (Max 2MB each)</span>
+              </label>
+              <input
+                type="file"
+                className="file-input file-input-bordered w-full "
+                accept="image/*"
+                multiple
+                onChange={handleFileChange}
+              />
+              {errorMessage && (
+                <p className="text-red-500 text-sm">{errorMessage}</p>
+              )}
+            </div>
             <div className="w-full">
-              <label className="form-control w-full max-w-xs">
+              <label className="form-control w-full ">
                 <div className="label">
                   <span className="label-text">
                     Service Category <span className="text-red-400">*</span>
@@ -119,13 +199,13 @@ const CreateServiceModal: React.FC<CreateServiceModalProps> = ({
                 <select
                   id="groupmembers"
                   name="groupmembers"
-                  // className="border-2 rounded-xl p-2 py-3 w-full text-black mt-2
                   className="select select-bordered"
                   onChange={(e) => setSelectedServiceCategory(e.target.value)}
                   defaultValue={""}
+                  required
                 >
                   <option value="" disabled>
-                    choose a service
+                    Choose a service
                   </option>
                   {serviceCategories.map((serviceCategory) => (
                     <option
@@ -150,7 +230,9 @@ const CreateServiceModal: React.FC<CreateServiceModalProps> = ({
                   !serviceName ||
                   !location ||
                   !availability ||
-                  status === "loading"
+                  status === "loading" ||
+                  imageFiles.length === 0 ||
+                  !!errorMessage
                 }
               >
                 {status === "loading" ? "Creating" : "Create"}

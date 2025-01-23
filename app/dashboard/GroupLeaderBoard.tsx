@@ -11,7 +11,7 @@ const GroupLeaderBoard = () => {
   const { groups, status } = useSelector((state: RootState) => state.groups);
 
   const [search, setSearch] = useState("");
-  const [sortType, setSortType] = useState("");
+  const [sortType, setSortType] = useState("pointsDesc");
 
   const filteredData = groups.filter((item) =>
     item.groupName.toLowerCase().includes(search.toLowerCase())
@@ -66,7 +66,7 @@ const GroupLeaderBoard = () => {
             <option value={"pointsDesc"}>Highest Points</option>
           </select>
         </div>
-        {sortedData.length > 0 ? (
+        {status !== "loading" && sortedData.length > 0 ? (
           <div className="shadow-md rounded-lg mt-4">
             <table className="table-auto w-full">
               <thead>

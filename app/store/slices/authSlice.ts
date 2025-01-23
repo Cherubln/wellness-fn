@@ -383,13 +383,15 @@ const authSlice = createSlice({
       .addCase(
         scanForPoints.fulfilled,
         (state, action: PayloadAction<{ points: number }>) => {
-          console.log(action.payload.points);
-
           state.status = "succeeded";
 
           (state.user as IUser).points! += action.payload.points;
         }
       )
+      .addCase(scanForPoints.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = (action.payload as { message: string }).message;
+      })
       // Get User
       .addCase(getUserById.pending, (state) => {
         state.status = "loading";

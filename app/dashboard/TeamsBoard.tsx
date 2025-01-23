@@ -23,7 +23,7 @@ const TeamsBoard = ({ userId }: { userId: string }) => {
           Your Teams
         </h2>
 
-        {groups.length > 0 ? (
+        {status !== "loading" && groups.length > 0 ? (
           <div className="shadow-md rounded-lg">
             <div className="flex justify-end mt-8">
               <button

@@ -12,6 +12,7 @@ export interface Service {
   phoneContact: string;
   category: string;
   provider: string;
+  images: string[]; // Added images field
 }
 
 interface ServiceState {
@@ -56,6 +57,7 @@ export const createService = createAsyncThunk(
     phoneContact?: string;
     category: string;
     provider: string;
+    images?: string[]; // Added images field
   }) => {
     const response = await axios.post(`${apiUrl}/api/services`, service);
     return response.data as Service;

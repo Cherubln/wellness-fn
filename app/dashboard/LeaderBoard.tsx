@@ -2,14 +2,17 @@
 import React, { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import GroupLeaderBoard from "./GroupLeaderBoard";
+import { RootState } from "../store";
+import { useSelector } from "react-redux";
 
 interface LeaderboardProps {
   data: { fullname: string; points?: number }[];
 }
 
 const Leaderboard: React.FC<LeaderboardProps> = ({ data }) => {
+  const { status } = useSelector((state: RootState) => state.users);
   const [search, setSearch] = useState("");
-  const [sortType, setSortType] = useState("");
+  const [sortType, setSortType] = useState("pointsDesc");
 
   const filteredData = data.filter((item) =>
     item.fullname.toLowerCase().includes(search.toLowerCase())
@@ -72,26 +75,36 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ data }) => {
               <option value={"pointsDesc"}>Highest Points</option>
             </select>
           </div>
-          <div className="mt-4 shadow-md rounded-lg">
-            <table className="table-auto w-full">
-              <thead className="text-">
-                <tr>
-                  <th className="px-4 py-2">No</th>
-                  <th className="px-4 py-2">Name</th>
-                  <th className="px-4 py-2">Points</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedData.map((entry, index) => (
-                  <tr key={index}>
-                    <th className="border px-4 py-2">{index + 1}</th>
-                    <td className="border px-4 py-2">{entry.fullname}</td>
-                    <td className="border px-4 py-2">{entry.points}</td>
+          {status !== "loading" && sortedData.length > 0 ? (
+            <div className="mt-4 shadow-md rounded-lg">
+              <table className="table-auto w-full">
+                <thead className="text-">
+                  <tr>
+                    <th className="px-4 py-2">No</th>
+                    <th className="px-4 py-2">Name</th>
+                    <th className="px-4 py-2">Points</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {sortedData.map((entry, index) => (
+                    <tr key={index}>
+                      <th className="border px-4 py-2">{index + 1}</th>
+                      <td className="border px-4 py-2">{entry.fullname}</td>
+                      <td className="border px-4 py-2">{entry.points}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : status === "loading" ? (
+            <div className="text-sm my-4 py-10 text-center">
+              <span className="loading loading-ring loading-lg"></span>
+            </div>
+          ) : (
+            <div className="text-sm my-4 py-10 text-center">
+              No data available
+            </div>
+          )}
         </>
       ) : (
         <GroupLeaderBoard />

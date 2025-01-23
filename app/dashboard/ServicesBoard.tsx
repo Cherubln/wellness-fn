@@ -26,11 +26,20 @@ const ServicesBoard = ({
 
   return (
     <div className="p-4 bg-base-100 ">
-      <h2 className="font-semibold mb-4 text-center underline underline-offset-8">
-        {role === "user" ? "Activities" : "Your Services"}
-      </h2>
+      <div className="flex justify-center items-center mb-4 gap-1">
+        <h2 className="font-semibold text-center underline underline-offset-8">
+          {role === "user" ? "Activities" : "Your Services"}{" "}
+        </h2>
+        {status !== "loading" ? (
+          <span className="badge bg-black/50 text-white">
+            {services.length}
+          </span>
+        ) : (
+          ""
+        )}
+      </div>
 
-      {services.length > 0 ? (
+      {status !== "loading" && services.length > 0 ? (
         <div className="">
           {role !== "user" && (
             <div className="flex justify-end mt-8 mb-4">
@@ -68,7 +77,6 @@ const ServicesBoard = ({
               <FaPlus className="" />
               Add service
             </button>
-            <CreateServiceModal isOpen={isModalOpen} onClose={setIsModalOpen} />
           </div>
         </div>
       ) : (
@@ -76,6 +84,7 @@ const ServicesBoard = ({
           No Services available yet
         </div>
       )}
+      <CreateServiceModal isOpen={isModalOpen} onClose={setIsModalOpen} />
     </div>
   );
 };

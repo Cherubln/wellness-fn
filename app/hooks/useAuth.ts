@@ -24,10 +24,6 @@ const useAuth = () => {
 
       // call getUserById from authSlice
       await dispatch(getUserById(userId));
-
-      if (token) {
-        console.log({ user });
-      }
     };
     if (!user._id) fetchData();
   }, [dispatch]);
