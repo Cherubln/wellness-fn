@@ -87,7 +87,7 @@ const CreateServiceModal: React.FC<CreateServiceModalProps> = ({
       await dispatch(
         createService({
           activityName: serviceName,
-          location,
+          location: location.trim().split(",").filter(Boolean),
           availability,
           description,
           category: selectedServiceCategory,
@@ -95,10 +95,23 @@ const CreateServiceModal: React.FC<CreateServiceModalProps> = ({
           images: base64Images,
         })
       );
-      if (status === "succeeded") onClose(false);
+      if (status === "succeeded") {
+        resetFields();
+        onClose(false);
+      }
     } catch (error) {
       console.error("Error uploading images:", error);
     }
+  };
+
+  const resetFields = () => {
+    setServiceName("");
+    setAvailability("");
+    setLocation("");
+    setDescription("");
+    setSelectedServiceCategory("");
+    setImageFiles([]);
+    setErrorMessage(null);
   };
 
   return (
@@ -110,14 +123,7 @@ const CreateServiceModal: React.FC<CreateServiceModalProps> = ({
               className="btn btn-sm btn-circle absolute right-2 top-2"
               onClick={() => {
                 // reset all fields here before closing the modal
-                setServiceName("");
-                setAvailability("");
-                setLocation("");
-                setDescription("");
-                setSelectedServiceCategory("");
-                setImageFiles([]);
-                setErrorMessage(null);
-                onClose(false);
+                resetFields();
               }}
             >
               <FaTimes />

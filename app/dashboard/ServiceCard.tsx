@@ -88,33 +88,48 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
           {service.activityName}
           {/* <div className="badge badge-secondary">NEW</div> */}
         </h2>
-        <div className="badge badge-outline">
+        <div className="mt-2 badge badge-outline">
           <span className="text-secondary text-sm -my-2">
             {service.category}
           </span>
         </div>
+        {user.role !== "service_provider" ? (
+          <div className="text-sm text-neutral">
+            Provider:{" "}
+            <span className="font-bold text-black">
+              {service.provider.name}
+            </span>
+          </div>
+        ) : (
+          ""
+        )}
         <p className="my-2 text-neutral ">
           <span className="line-clamp-3" title={service.description}>
             {service.description}
           </span>
         </p>
         <div className="text-sm flex flex-col gap-2 ">
-          <div className="flex flex-row gap-2 items-center">
+          <div className="flex flex-row gap-6 items-center">
             <div>
               <FaMapMarkerAlt className="inflex w-4 h-4" />
             </div>
-
-            {isLink(service.location) ? (
-              <a
-                target="_blank"
-                href={service.location}
-                className="break-words text-blue-500 cursor-pointer hover:underline truncate"
-              >
-                {service.location}
-              </a>
-            ) : (
-              <p className="">{service.location}</p>
-            )}
+            <ol className="w-full list-[square] flex flex-wrap gap-6">
+              {service.location.slice(0, 3).map((loc) => (
+                <li key={loc}>
+                  {isLink(loc) ? (
+                    <a
+                      target="_blank"
+                      href={loc}
+                      className="break-words text-blue-500 cursor-pointer hover:underline truncate"
+                    >
+                      {loc}
+                    </a>
+                  ) : (
+                    <p className="">{loc}</p>
+                  )}
+                </li>
+              ))}
+            </ol>
           </div>
           <div className="flex gap-2">
             <p className="bg-secondary/80 rounded-lg max-w-fit p-3 truncate capitalize">

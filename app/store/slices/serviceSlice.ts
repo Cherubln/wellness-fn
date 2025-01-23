@@ -8,10 +8,10 @@ export interface Service {
   activityName: string;
   availability: string;
   description: string;
-  location: string;
+  location: string[];
   phoneContact: string;
   category: string;
-  provider: string;
+  provider: { _id: string; name: string };
   images: string[]; // Added images field
 }
 
@@ -53,7 +53,7 @@ export const createService = createAsyncThunk(
     activityName: string;
     availability: string;
     description?: string;
-    location: string;
+    location: string[];
     phoneContact?: string;
     category: string;
     provider: string;

@@ -30,7 +30,7 @@ const ServicesBoard = ({
         <h2 className="font-semibold text-center underline underline-offset-8">
           {role === "user" ? "Activities" : "Your Services"}{" "}
         </h2>
-        {status !== "loading" ? (
+        {status !== "loading" && services.length > 0 ? (
           <span className="badge bg-black/50 text-white">
             {services.length}
           </span>
