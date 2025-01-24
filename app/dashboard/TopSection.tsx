@@ -1,10 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 import React from "react";
-import { FaBell, FaUserCircle } from "react-icons/fa";
+import { FaUserCircle } from "react-icons/fa";
 import { AiOutlineUser } from "react-icons/ai";
 import { MdClose, MdLogout } from "react-icons/md";
-import { BsQrCodeScan } from "react-icons/bs";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { logout } from "@/app/store/slices/authSlice";
 import { useDispatch } from "react-redux";
@@ -52,19 +51,15 @@ const TopSection: React.FC<TopSectionProps> = ({ user }) => {
               )}
             </label>
             <div className="ml-3">
-              <p className="text-sm sm:text-lg font-semibold">
-                {user.role === "user" ? "Hello" : "Welcome"},{" "}
-                {user.username || user.name}!
+              <p className="text-sm sm:text-lg font-semibold flex flex-col ">
+                <span>{user.role === "user" ? "Hello" : "Welcome"},</span>
+                <span>{user.username || user.name}!</span>
               </p>{" "}
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <FaBell className="text-xl sm:text-2xl text-gray-600" />
-            {user.role === "user" && (
-              <Link href="/scan">
-                <BsQrCodeScan className="text-xl sm:text-2xl text-gray-600" />
-              </Link>
-            )}
+            {/* <FaBell className="text-xl sm:text-2xl text-gray-600" /> */}
+            <img src="/images/3.png" alt="log" className="w-20 h-auto" />
           </div>
         </div>
       </div>
@@ -76,7 +71,6 @@ const TopSection: React.FC<TopSectionProps> = ({ user }) => {
         ></label>
         <ul className="menu bg-[var(--background)] text-base-content min-h-full w-80 rounded-r-2xl">
           {/* Sidebar content here */}
-          {/* add a close button with a react icon */}
 
           <div className="flex justify-between">
             <li>

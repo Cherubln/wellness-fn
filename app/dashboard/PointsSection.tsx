@@ -3,6 +3,8 @@ import CountUp from "react-countup";
 import Image from "next/image";
 import { FaDownload } from "react-icons/fa";
 import {} from "react-icons/fa";
+import Link from "next/link";
+import { BsQrCodeScan } from "react-icons/bs";
 // import { AppDispatch, RootState } from "../store";
 // import { useDispatch, useSelector } from "react-redux";
 // import {
@@ -67,12 +69,23 @@ const PointsSection: React.FC<BalanceSectionProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 bg-base-100">
-      <p className="text-lg font-semibold">
-        {user.points ? "Points" : user.qrCode?.image ? "Your QR Code" : ""}
-      </p>
+    <div className="flex flex-col items-center justify-center p-6 bg-base-100">
+      <div className="text-lg font-semibold">
+        {user.points ? (
+          <div className="flex justify-end items-center gap-2 font-bold">
+            <span className="text-xl">Points</span>
+            <Link href="/scan">
+              <BsQrCodeScan className="text-xl text-gray-600 font-bold" />
+            </Link>
+          </div>
+        ) : user.qrCode?.image ? (
+          "Your QR Code"
+        ) : (
+          ""
+        )}
+      </div>
       {user.points ? (
-        <p className="text-4xl my-1 text-secondary font-bold">
+        <p className="text-4xl my-2.5 text-secondary font-bold">
           <CountUp end={user.points!} />
         </p>
       ) : user.qrCode?.image && isServiceExist ? (

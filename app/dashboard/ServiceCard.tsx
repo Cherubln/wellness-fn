@@ -94,7 +94,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
           </span>
         </div>
         {user.role !== "service_provider" ? (
-          <div className="text-sm text-neutral">
+          <div className="">
             Provider:{" "}
             <span className="font-bold text-black">
               {service.provider.name}
@@ -109,20 +109,20 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
           </span>
         </p>
         <div className="text-sm flex flex-col gap-2 ">
-          <div className="flex flex-row gap-6 items-center">
+          <div className="flex flex-row gap-2 items-center">
             <div>
-              <FaMapMarkerAlt className="inflex w-4 h-4" />
+              <FaMapMarkerAlt className="inline-flex w-4 h-4" />
             </div>
-            <ol className="w-full list-[square] flex flex-wrap gap-6">
+            <ol className=" flex flex-wrap gap-2">
               {service.location.slice(0, 3).map((loc) => (
                 <li key={loc}>
                   {isLink(loc) ? (
                     <a
                       target="_blank"
                       href={loc}
-                      className="break-words text-blue-500 cursor-pointer hover:underline truncate"
+                      className="text-blue-500 cursor-pointer underline truncate"
                     >
-                      {loc}
+                      View on map
                     </a>
                   ) : (
                     <p className="">{loc}</p>
@@ -131,7 +131,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
               ))}
             </ol>
           </div>
-          <div className="flex gap-2">
+          <div className="mt-2 flex gap-2">
             <p className="bg-secondary/80 rounded-lg max-w-fit p-3 truncate capitalize">
               {service.availability}
             </p>

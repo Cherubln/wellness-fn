@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -8,6 +9,7 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/app/store";
 import { IUser, scanForPoints } from "../store/slices/authSlice";
+import { stat } from "fs";
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const Scan = () => {
@@ -37,7 +39,11 @@ const Scan = () => {
       if (resulted.payload.error) {
         setIsError(resulted.payload.error);
       } else {
-        router.push("/dashboard");
+        router.push(
+          `/dashboard?state=${encodeURIComponent(
+            JSON.stringify({ qrScanned: true })
+          )}`
+        );
       }
     }
   };
@@ -56,8 +62,15 @@ const Scan = () => {
   }, []);
 
   return (
-    <div className="">
-      <div className="py-5 my-6 m-auto text-center">
+    <div className="py-4">
+      <div className="flex justify-center">
+        <img
+          src="/images/3.png"
+          alt="logo"
+          className="object-contain w-2/3 h-auto"
+        />
+      </div>
+      <div className="my-6 m-auto text-center">
         <p> Scan the QR code using the following box</p>
         <p>Make sure to make the QR centered</p>
       </div>

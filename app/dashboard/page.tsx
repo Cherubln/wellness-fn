@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../store";
 import { isTokenValid } from "../utils/auth";
@@ -13,6 +13,8 @@ import TeamsBoard from "./TeamsBoard";
 import useAuth from "@/app/hooks/useAuth";
 import { fetchAllUsers } from "@/app/store/slices/usersSlice";
 import ServicesBoard from "./ServicesBoard";
+import ReactConfetti from "react-confetti";
+import { ToastContainer, toast } from "react-toastify";
 
 const Dashboard = () => {
   useAuth();
@@ -22,10 +24,51 @@ const Dashboard = () => {
 
   const { users } = useSelector((state: RootState) => state.users);
   const { services } = useSelector((state: RootState) => state.services);
+  const searchParams = useSearchParams();
+
+  const alert = () => {
+    toast(
+      "You've ruled the 🏆 squat throne! Power, endurance, and grit - King of Squats has crowned you a true champion!",
+      {
+        position: "top-center",
+        autoClose: 8000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        // transition: {"Bounce" as ToastTransition}
+      }
+    );
+  };
+  const display = () => {
+    const state = searchParams.get("state");
+    if (state) {
+      const qrScanned = JSON.parse(decodeURIComponent(state)).qrScanned;
+      if (qrScanned) {
+        return (
+          <div>
+            <ReactConfetti tweenDuration={1000} recycle={false} />
+          </div>
+        );
+      }
+    }
+  };
 
   useEffect(() => {
     dispatch(fetchAllUsers());
   }, [dispatch]);
+
+  useEffect(() => {
+    const state = searchParams.get("state");
+    if (state) {
+      const qrScanned = JSON.parse(decodeURIComponent(state)).qrScanned;
+      if (qrScanned) {
+        alert();
+      }
+    }
+  }, [searchParams]);
 
   const leaderboardData = users;
   const [selectedWidget, setSelectedWidget] = useState<string | null>(
@@ -45,22 +88,30 @@ const Dashboard = () => {
 
   if (auth.user.role) {
     return (
-      <div className="md:container md:mx-auto md:max-w-4xl">
-        <TopSection user={auth.user} />
-        <PointsSection user={auth.user} isServiceExist={services.length > 0} />
-        <WidgetsSection
-          role={auth.user.role}
-          selectedWidget={selectedWidget}
-          onWidgetClick={handleWidgetClick}
-        />
-        {selectedWidget === "Leaderboard" && (
-          <Leaderboard data={leaderboardData} />
-        )}
-        {selectedWidget === "Teams" && <TeamsBoard userId={auth.user._id!} />}
-        {(selectedWidget === "Services" || selectedWidget === "Activities") && (
-          <ServicesBoard providerId={auth.user._id!} role={auth.user.role} />
-        )}
-      </div>
+      <>
+        <ToastContainer />
+        <div className="md:container md:mx-auto md:max-w-4xl">
+          <TopSection user={auth.user} />
+          <div>{display()}</div>
+          <PointsSection
+            user={auth.user}
+            isServiceExist={services.length > 0}
+          />
+          <WidgetsSection
+            role={auth.user.role}
+            selectedWidget={selectedWidget}
+            onWidgetClick={handleWidgetClick}
+          />
+          {selectedWidget === "Leaderboard" && (
+            <Leaderboard data={leaderboardData} />
+          )}
+          {selectedWidget === "Teams" && <TeamsBoard userId={auth.user._id!} />}
+          {(selectedWidget === "Services" ||
+            selectedWidget === "Activities") && (
+            <ServicesBoard providerId={auth.user._id!} role={auth.user.role} />
+          )}
+        </div>
+      </>
     );
   } else {
     return (
