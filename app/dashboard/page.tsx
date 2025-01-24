@@ -15,6 +15,7 @@ import { fetchAllUsers } from "@/app/store/slices/usersSlice";
 import ServicesBoard from "./ServicesBoard";
 import ReactConfetti from "react-confetti";
 import { ToastContainer, toast } from "react-toastify";
+import { Suspense } from "react";
 
 const Dashboard = () => {
   useAuth();
@@ -25,7 +26,7 @@ const Dashboard = () => {
   const { users } = useSelector((state: RootState) => state.users);
   const { services } = useSelector((state: RootState) => state.services);
   const searchParams = useSearchParams();
-
+  const state = searchParams.get("state");
   const alert = () => {
     toast(
       "You've ruled the 🏆 squat throne! Power, endurance, and grit - King of Squats has crowned you a true champion!",
@@ -43,7 +44,6 @@ const Dashboard = () => {
     );
   };
   const display = () => {
-    const state = searchParams.get("state");
     if (state) {
       const qrScanned = JSON.parse(decodeURIComponent(state)).qrScanned;
       if (qrScanned) {
@@ -61,14 +61,13 @@ const Dashboard = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    const state = searchParams.get("state");
     if (state) {
       const qrScanned = JSON.parse(decodeURIComponent(state)).qrScanned;
       if (qrScanned) {
         alert();
       }
     }
-  }, [searchParams]);
+  }, [searchParams, state]);
 
   const leaderboardData = users;
   const [selectedWidget, setSelectedWidget] = useState<string | null>(
@@ -122,4 +121,9 @@ const Dashboard = () => {
   }
 };
 
-export default Dashboard;
+const FinalDashboard = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <Dashboard />
+  </Suspense>
+);
+export default FinalDashboard;
