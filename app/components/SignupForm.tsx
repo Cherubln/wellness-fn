@@ -3,20 +3,16 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "../store";
 import { useRouter } from "next/navigation";
-import { signupUser } from "../store/slices/authSlice";
+import { signupUser, googleSignIn } from "../store/slices/authSlice";
 import "react-international-phone/style.css";
 import Link from "next/link";
 import { FaCheckCircle } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 
 const SignupForm: React.FC = () => {
-  // const [accountType, setAccountType] = useState("individual");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  // const [phoneNumber, setPhoneNumber] = useState("");
-  // const [gender, setGender] = useState("other");
-  // const [groupName, setGroupName] = useState("");
-  // const [groupMembers, setgroupMembers] = useState<string[]>([]);
   const [checked, setChecked] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const signupStatus = useSelector((state: RootState) => state.auth.status);
@@ -55,26 +51,22 @@ const SignupForm: React.FC = () => {
     } else if (signupError) setIsError(true);
   };
 
+  const handleGoogleSignIn = async () => {
+    setIsError(false);
+    const resultAction = await dispatch(googleSignIn());
+
+    if (googleSignIn.fulfilled.match(resultAction)) {
+      setIsError(false);
+      router.push("/dashboard");
+    } else if (signupError) setIsError(true);
+  };
+
   const validForm =
     email.length > 1 && password.length > 1 && fullName.length > 1;
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       <div className="w-full">
-        {/* <label className="form-control w-full ">
-            <div className="label">
-              <span className="label-text">
-                Email <span className="text-red-400">*</span>
-              </span>
-            </div>
-            <input
-              type="email"
-              className="input input-bordered w-full "
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </label> */}
         <input
           type="text"
           className="input input-bordered w-full text-sm"
@@ -100,124 +92,6 @@ const SignupForm: React.FC = () => {
           required
         />
       </div>
-
-      {/* <section className="w-full flex flex-col gap-4">
-        <div className="w-full">
-          <label className="form-control w-full ">
-            <div className="label">
-              <span className="label-text">
-                Gender <span className="text-red-400">*</span>
-              </span>
-            </div>
-            <select
-              className="select select-bordered"
-              value={gender}
-              onChange={(e) => setGender(e.target.value)}
-              required
-            >
-              <option value="male" className="text-black">
-                Male
-              </option>
-              <option value="female" className="text-black">
-                Female
-              </option>
-              <option value="other" className="text-black">
-                Other
-              </option>
-            </select>
-          </label>
-        </div>
-        <div className="w-full">
-          <label className="label-text">
-            <span className="my-2 block">
-              Phone Number <span className="text-red-400">*</span>
-            </span>
-            <PhoneInput
-              className="input input-bordered p-0 border-none"
-              inputStyle={{
-                height: "100%",
-                width: "100%",
-                fontSize: "1rem",
-                borderColor: "currentcolor",
-                borderTopRightRadius: "0.5rem",
-                borderBottomRightRadius: "0.5rem",
-                backgroundColor: "inherit",
-                color: "inherit",
-              }}
-              inputProps={{ required: true }}
-              countrySelectorStyleProps={{
-                buttonStyle: {
-                  height: "100%",
-                  fontSize: "1rem",
-                  padding: "0 0.5rem",
-                  borderTopLeftRadius: "0.5rem",
-                  borderBottomLeftRadius: "0.5rem",
-                  borderColor: "currentcolor",
-                  backgroundColor: "inherit",
-                },
-              }}
-              defaultCountry="ua"
-              value={phoneNumber}
-              onChange={(phone) => setPhoneNumber(phone)}
-            />
-          </label>
-        </div>
-      </section> */}
-      {/* <div>
-        <label className="form-control w-full ">
-          <div className="label">
-            <span className="label-text">
-              Sign up as <span className="text-red-400">*</span>
-            </span>
-          </div>
-          <select
-            className="select select-bordered"
-            value={accountType}
-            onChange={(e) => setAccountType(e.target.value)}
-            required
-          >
-            <option value="individual" className="text-black">
-              Individual
-            </option>
-            <option value="group" className="text-black">
-              Group
-            </option>
-          </select>
-        </label>
-      </div>
-
-      {accountType === "group" && (
-        <div className="flex flex-col gap-4">
-          <label className="form-control w-full ">
-            <div className="label">
-              <span className="label-text">
-                Group Name <span className="text-red-400">*</span>
-              </span>
-            </div>
-            <input
-              type="text"
-              className="input input-bordered w-full "
-              value={groupName}
-              onChange={(e) => setGroupName(e.target.value)}
-              required
-            />
-          </label>
-
-          <label className="form-control w-full ">
-            <div className="label">
-              <span className="label-text">
-                Group Members <span className="text-red-400">*</span>
-              </span>
-            </div>
-            <ItemSearch
-              items={users}
-              setfilteredItems={setgroupMembers}
-              filteredItems={groupMembers}
-            />
-          </label>
-        </div>
-      )} */}
-
       <div className="flex flex-row gap-x-2 justify-center items-center text-sm">
         <input
           type="checkbox"
@@ -273,6 +147,19 @@ const SignupForm: React.FC = () => {
           <span>Signed up successfully! Redirecting to your dashboard...</span>
         </p>
       )}
+      {/* signin with socials */}
+      <div className="flex flex-col gap-4">
+        <div className="divider after:bg-neutral before:bg-neutral">OR</div>
+        <div className="flex flex-col gap-4">
+          <button
+            type="button"
+            className="btn flex items-center space-x-2  border-inherit "
+            onClick={handleGoogleSignIn}
+          >
+            <FcGoogle className="w-5 h-5" /> <span>Sign up with Google</span>
+          </button>
+        </div>
+      </div>
     </form>
   );
 };

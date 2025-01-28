@@ -1,11 +1,11 @@
 "use client";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { signIn } from "../store/slices/authSlice";
+import { signIn, googleSignIn } from "../store/slices/authSlice";
 import { RootState, AppDispatch } from "../store";
 import { useRouter } from "next/navigation";
 import { FaCheckCircle } from "react-icons/fa";
-// import { FcGoogle } from "react-icons/fc";
+import { FcGoogle } from "react-icons/fc";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -21,6 +21,16 @@ export default function LoginForm() {
     const resultAction = await dispatch(signIn({ email, password }));
 
     if (signIn.fulfilled.match(resultAction)) {
+      setIsError(false);
+      router.push("/dashboard");
+    } else if (error) setIsError(true);
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsError(false);
+    const resultAction = await dispatch(googleSignIn());
+
+    if (googleSignIn.fulfilled.match(resultAction)) {
       setIsError(false);
       router.push("/dashboard");
     } else if (error) setIsError(true);
@@ -61,17 +71,18 @@ export default function LoginForm() {
         </p>
       )}
       {/* signin with socials */}
-      {/* <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4">
         <div className="divider after:bg-neutral before:bg-neutral">OR</div>
         <div className="flex flex-col gap-4">
           <button
             type="button"
-            className="btn flex items-center space-x-2  border-inherit hover:text-secondary  text-secondary/80"
+            className="btn flex items-center space-x-2  border-inherit"
+            onClick={handleGoogleSignIn}
           >
-            <FcGoogle /> <span>Log in with Google</span>
+            <FcGoogle className="w-5 h-5" /> <span>Log in with Google</span>
           </button>
         </div>
-      </div> */}
+      </div>
     </form>
   );
 }

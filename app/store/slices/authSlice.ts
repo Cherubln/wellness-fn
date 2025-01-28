@@ -52,6 +52,25 @@ const initialState: AuthState = {
   user: {} as IUser | IServiceProvider,
 };
 
+// Async thunk for Google sign-in
+export const googleSignIn = createAsyncThunk(
+  "auth/googleSignIn",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/users/google`);
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data);
+      } else {
+        console.log({ error });
+
+        return rejectWithValue({ message: "An unknown error occurred" });
+      }
+    }
+  }
+);
+
 // Async thunk for sign-in
 export const signIn = createAsyncThunk(
   "auth/signIn",
@@ -342,6 +361,53 @@ const authSlice = createSlice({
         state.status = "failed";
         state.error = (action.payload as { message: string }).message;
       })
+      .addCase(googleSignIn.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(
+        googleSignIn.fulfilled,
+        (state, action: PayloadAction<{ token: string }>) => {
+          const tokenData = jwtDecode<IServiceProvider | IUser>(
+            action.payload.token
+          );
+
+          state.status = "succeeded";
+          state.isAuthenticated = true;
+          state.token = action.payload.token;
+          // add user state
+          if (tokenData.role === "user") {
+            state.user!._id = tokenData._id;
+            state.user!.email = tokenData.email;
+            (state.user as IUser).fullname = tokenData.fullname;
+            (state.user as IUser).username = tokenData.username;
+            (state.user as IUser).groups = tokenData.groups;
+            (state.user as IUser).gender = tokenData.gender;
+            (state.user as IUser).phonenumber = tokenData.phonenumber;
+            (state.user as IUser).points = tokenData.points;
+            (state.user as IUser).role = tokenData.role;
+            (state.user as IUser).profilePicture = tokenData.profilePicture;
+          } else {
+            (state.user as IServiceProvider)._id = tokenData._id;
+            (state.user as IServiceProvider).name = tokenData.name;
+            (state.user as IServiceProvider).email = tokenData.email;
+            (state.user as IServiceProvider).logo = tokenData.logo;
+            (state.user as IServiceProvider).phoneNumber =
+              tokenData.phoneNumber;
+            (state.user as IServiceProvider).services = tokenData.services;
+            (state.user as IServiceProvider).role = tokenData.role;
+            (state.user as IServiceProvider).qrCode = tokenData.qrCode;
+          }
+        }
+      )
+      .addCase(
+        googleSignIn.rejected,
+        (state, action: PayloadAction<unknown>) => {
+          state.status = "failed";
+          state.error = (action.payload as { message: string }).message;
+        }
+      )
+
       .addCase(serviceProviderSignUp.pending, (state) => {
         state.status = "loading";
         state.error = null;
