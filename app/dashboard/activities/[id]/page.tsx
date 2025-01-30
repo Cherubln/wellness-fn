@@ -22,7 +22,6 @@ const ServiceDetailsPage = () => {
   const { status, services } = useSelector(
     (state: RootState) => state.services
   );
-  const { user } = useSelector((state: RootState) => state.auth);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editService, setEditService] = useState<Service>({} as Service);
@@ -32,10 +31,14 @@ const ServiceDetailsPage = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
+    if (services.length == 0) {
+      router.push("/dashboard");
+    }
     if (!isEditing) {
+      setService(services.find((service) => service._id === id)!);
       setEditService(service);
     }
-  }, [dispatch]);
+  }, [id]);
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -87,6 +90,14 @@ const ServiceDetailsPage = () => {
       return false;
     }
   };
+
+  if (services.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="loading loading-ring loading-lg"></span>
+      </div>
+    );
+  }
 
   return (
     <div className="md:container md:mx-auto md:max-w-4xl">
@@ -296,21 +307,21 @@ const ServiceDetailsPage = () => {
             </div>
           </div>
           <div className="badge badge-lg bg-secondary font-semibold p-5 rounded-lg">
-            {service?.price ? `KES ${service.price.toFixed(2)}` : "Free"}
+            {service?.price ? `KES ${service?.price.toFixed(2)}` : "Free"}
           </div>
           <div>
-            <p className="font-bold uppercase">{service.availability}</p>
+            <p className="font-bold uppercase">{service?.availability}</p>
           </div>
           <div className="flex flex-col gap-5">
             <div>
               <h2 className="text-neutral font-semibold">Provider</h2>
-              <p className="text-lg font-bold">{service.provider.name}</p>
+              <p className="text-lg font-bold">{service?.provider.name}</p>
             </div>
-            <div className="">{service.description}</div>
+            <div className="">{service?.description}</div>
             <div>
               <p className="font-bold">Location(s)</p>
               <div className="flex flex-wrap gap-3">
-                {service.location.map((loc) => (
+                {service?.location.map((loc) => (
                   <div key={loc} className="flex items-center gap-1">
                     <div>
                       <FaMapMarkerAlt className="inline-flex w-4 h-4" />
@@ -331,25 +342,25 @@ const ServiceDetailsPage = () => {
               </div>
             </div>
           </div>
-          {user.role === "service_provider" && (
-            <div className="flex items-center gap-4 p-4 -mt-4 mb-4">
-              <button
-                className="btn btn-sm text-gray-500 bg-neutral/30 rounded-lg px-2 py-1 border border-neutral hover:bg-neutral/50 w-20 transition-colors"
-                onClick={() => setIsEditing(true)}
-              >
-                Edit
-              </button>
-              <button
-                className={`btn btn-sm text-red-500 bg-neutral/30 rounded-lg px-2 py-1 border border-neutral hover:bg-neutral/50 w-20 transition-colors ${
-                  isDeleting ? "loading" : ""
-                }`}
-                onClick={handleDelete}
-                disabled={isDeleting || status === "loading"}
-              >
-                Delete
-              </button>
-            </div>
-          )}
+          {/* {user.role === "service_provider" && ( */}
+          <div className="flex items-center gap-4 p-4 -mt-4 mb-4">
+            <button
+              className="btn btn-sm text-gray-500 bg-neutral/30 rounded-lg px-2 py-1 border border-neutral hover:bg-neutral/50 w-20 transition-colors"
+              onClick={() => setIsEditing(true)}
+            >
+              Edit
+            </button>
+            <button
+              className={`btn btn-sm text-red-500 bg-neutral/30 rounded-lg px-2 py-1 border border-neutral hover:bg-neutral/50 w-20 transition-colors ${
+                isDeleting ? "loading" : ""
+              }`}
+              onClick={handleDelete}
+              disabled={isDeleting || status === "loading"}
+            >
+              Delete
+            </button>
+          </div>
+          {/* )} */}
         </div>
       )}
     </div>

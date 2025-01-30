@@ -72,10 +72,10 @@ export default function LoginForm() {
         <p className="text-red-500 text-sm text-center mt-4">{error}</p>
       )}
       {status === "succeeded" && !isError && (
-        <p className="alert border-none text-sm rounded-md ">
+        <div className="alert border-none text-sm rounded-md ">
           <FaCheckCircle className="text-5xl text-secondary" />
-          <span>Signed in successfully! Redirecting to your dashboard...</span>
-        </p>
+          <p>Signed in successfully! Redirecting to your dashboard...</p>
+        </div>
       )}
       {/* signin with socials */}
       {/* <div className="flex flex-col gap-4">
