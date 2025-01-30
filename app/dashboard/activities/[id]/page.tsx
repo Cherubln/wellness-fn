@@ -22,6 +22,7 @@ const ServiceDetailsPage = () => {
   const { status, services } = useSelector(
     (state: RootState) => state.services
   );
+  const { user } = useSelector((state: RootState) => state.auth);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editService, setEditService] = useState<Service>({} as Service);
@@ -330,25 +331,25 @@ const ServiceDetailsPage = () => {
               </div>
             </div>
           </div>
-          {/* {user.role === "service_provider" && ( */}
-          <div className="flex items-center gap-4 p-4 -mt-4 mb-4">
-            <button
-              className="btn btn-sm text-gray-500 bg-neutral/30 rounded-lg px-2 py-1 border border-neutral hover:bg-neutral/50 w-20 transition-colors"
-              onClick={() => setIsEditing(true)}
-            >
-              Edit
-            </button>
-            <button
-              className={`btn btn-sm text-red-500 bg-neutral/30 rounded-lg px-2 py-1 border border-neutral hover:bg-neutral/50 w-20 transition-colors ${
-                isDeleting ? "loading" : ""
-              }`}
-              onClick={handleDelete}
-              disabled={isDeleting || status === "loading"}
-            >
-              Delete
-            </button>
-          </div>
-          {/* )} */}
+          {user.role === "service_provider" && (
+            <div className="flex items-center gap-4 p-4 -mt-4 mb-4">
+              <button
+                className="btn btn-sm text-gray-500 bg-neutral/30 rounded-lg px-2 py-1 border border-neutral hover:bg-neutral/50 w-20 transition-colors"
+                onClick={() => setIsEditing(true)}
+              >
+                Edit
+              </button>
+              <button
+                className={`btn btn-sm text-red-500 bg-neutral/30 rounded-lg px-2 py-1 border border-neutral hover:bg-neutral/50 w-20 transition-colors ${
+                  isDeleting ? "loading" : ""
+                }`}
+                onClick={handleDelete}
+                disabled={isDeleting || status === "loading"}
+              >
+                Delete
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
