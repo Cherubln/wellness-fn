@@ -26,6 +26,7 @@ const CreateServiceModal: React.FC<CreateServiceModalProps> = ({
   const [serviceName, setServiceName] = useState("");
   const [availability, setAvailability] = useState("");
   const [location, setLocation] = useState("");
+  const [price, setPrice] = useState<number | undefined>(undefined);
   const [description, setDescription] = useState("");
   const [selectedServiceCategory, setSelectedServiceCategory] =
     useState<string>("");
@@ -93,6 +94,7 @@ const CreateServiceModal: React.FC<CreateServiceModalProps> = ({
           category: selectedServiceCategory,
           provider: user._id!,
           images: base64Images,
+          price,
         })
       );
       if (status === "succeeded") {
@@ -112,6 +114,7 @@ const CreateServiceModal: React.FC<CreateServiceModalProps> = ({
     setSelectedServiceCategory("");
     setImageFiles([]);
     setErrorMessage(null);
+    setPrice(undefined);
   };
 
   return (
@@ -169,6 +172,19 @@ const CreateServiceModal: React.FC<CreateServiceModalProps> = ({
             </div>
             <div className="form-control mb-4">
               <label className="label">
+                <span className="label-text">Price(KES)</span>
+              </label>
+              <input
+                type="number"
+                placeholder="Price in KES"
+                className="input input-bordered"
+                value={price}
+                onChange={(e) => setPrice(Number(e.target.value))}
+                required
+              />
+            </div>
+            <div className="form-control mb-4">
+              <label className="label">
                 <span className="label-text">Location</span>
               </label>
               <input
@@ -186,7 +202,7 @@ const CreateServiceModal: React.FC<CreateServiceModalProps> = ({
               </label>
               <input
                 type="file"
-                className="file-input file-input-bordered w-full "
+                className="file-input file-input-bordered w-full"
                 accept="image/*"
                 multiple
                 onChange={handleFileChange}

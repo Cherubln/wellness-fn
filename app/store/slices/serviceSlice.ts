@@ -13,6 +13,7 @@ export interface Service {
   category: string;
   provider: { _id: string; name: string };
   images: string[]; // Added images field
+  price?: number;
 }
 
 interface ServiceState {
@@ -58,6 +59,7 @@ export const createService = createAsyncThunk(
     category: string;
     provider: string;
     images?: string[]; // Added images field
+    price?: number;
   }) => {
     const response = await axios.post(`${apiUrl}/api/services`, service);
     return response.data as Service;

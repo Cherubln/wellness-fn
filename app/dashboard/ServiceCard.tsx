@@ -1,10 +1,11 @@
 // components/ServiceCard.tsx
 /* eslint-disable @next/next/no-img-element */
-import React, { useState } from "react";
-import { Service, deleteService } from "../store/slices/serviceSlice";
+import { Service } from "../store/slices/serviceSlice";
 import { FaMapMarkerAlt } from "react-icons/fa";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../store";
+import { useSelector } from "react-redux";
+import { RootState } from "../store";
+import { useRouter } from "next/navigation";
+import { FaChevronRight } from "react-icons/fa6";
 
 interface ServiceCardProps {
   service: Service;
@@ -21,19 +22,12 @@ const isLink = (text: string) => {
 };
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { status } = useSelector((state: RootState) => state.services);
   const { user } = useSelector((state: RootState) => state.auth);
-  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
-    await dispatch(deleteService(service._id));
-    setIsDeleting(false);
-  };
+  const router = useRouter();
 
   return (
-    <div className="card bg-base-100 w-full sm:w-96 shadow-xl">
+    <div className="card bg-base-100 w-full sm:w-96 shadow-xl hover:cursor-pointer">
       <figure className="w-full h-48 overflow-hidden relative">
         <div className="carousel w-full">
           {service.images.length > 0 ? (
@@ -57,7 +51,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                             service.images.length)
                         : service._id + (service.images.length - 1)
                     }`}
-                    className="btn btn-circle hover:bg-[var(--background)] border-none bg-black/60 text-white hover:text-black"
+                    className="btn btn-circle btn-sm hover:bg-[var(--background)] border-none bg-black/60 text-white hover:text-black"
                   >
                     ❮
                   </a>
@@ -67,7 +61,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
                       (((index % service.images.length) + 1) %
                         service.images.length)
                     }`}
-                    className="btn btn-circle hover:bg-[var(--background)] border-none bg-black/60 text-white hover:text-black"
+                    className="btn btn-circle btn-sm hover:bg-[var(--background)] border-none bg-black/60 text-white hover:text-black"
                   >
                     ❯
                   </a>
@@ -88,21 +82,17 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
           {service.activityName}
           {/* <div className="badge badge-secondary">NEW</div> */}
         </h2>
-        <div className="mt-2 badge badge-outline">
-          <span className="text-secondary text-sm -my-2">
-            {service.category}
-          </span>
-        </div>
-        {user.role !== "service_provider" ? (
-          <div className="">
-            Provider:{" "}
-            <span className="font-bold text-black">
-              {service.provider.name}
+        <div className="flex flex-col gap-4">
+          <div className="badge badge-outline">
+            <span className="text-secondary text-sm -my-2">
+              {service.category}
             </span>
           </div>
-        ) : (
-          ""
-        )}
+          <div className="badge p-4 rounded-lg text-base bg-secondary">
+            {service.price ? `KES ${service.price.toFixed(2)}` : "Free"}
+          </div>
+        </div>
+
         <p className="my-2 text-neutral ">
           <span className="line-clamp-3" title={service.description}>
             {service.description}
@@ -137,18 +127,26 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
             </p>
           </div>
         </div>
-        <div className="card-actions justify-end">
-          {user.role === "service_provider" && (
-            <button
-              className={`btn bg-red-500 border-none text-white hover:bg-red-700 btn-sm ${
-                isDeleting ? "loading" : ""
-              }`}
-              onClick={handleDelete}
-              disabled={isDeleting || status === "loading"}
-            >
-              {isDeleting ? "Deleting..." : "Delete"}
-            </button>
-          )}
+        {user.role !== "service_provider" ? (
+          <div className="mt-4">
+            <span className="text-neutral capitalize">Brought to you By </span>
+            <span className="font-bold text-black">
+              {service.provider.name}
+            </span>
+          </div>
+        ) : (
+          ""
+        )}
+        <div className="card-actions justify-end mt-4 -mb-4">
+          <span
+            className="btn btn-sm text-blue-500  hover:text-blue-700"
+            onClick={() => {
+              router.push(`/dashboard/activities/${service._id}`);
+            }}
+          >
+            View more
+            <FaChevronRight className="inline" />
+          </span>
         </div>
       </div>
     </div>

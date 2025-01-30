@@ -57,7 +57,11 @@ export const googleSignIn = createAsyncThunk(
   "auth/googleSignIn",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/api/users/google`);
+      const response = await axios.get(`${apiUrl}/api/users/google`, {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {

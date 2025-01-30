@@ -1,11 +1,12 @@
 "use client";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { signIn, googleSignIn } from "../store/slices/authSlice";
+import { signIn } from "../store/slices/authSlice";
 import { RootState, AppDispatch } from "../store";
 import { useRouter } from "next/navigation";
 import { FaCheckCircle } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
+// import { FcGoogle } from "react-icons/fc";
+// import Link from "next/link";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -26,15 +27,21 @@ export default function LoginForm() {
     } else if (error) setIsError(true);
   };
 
-  const handleGoogleSignIn = async () => {
-    setIsError(false);
-    const resultAction = await dispatch(googleSignIn());
+  // const handleGoogleSignIn = async () => {
+  //   // setIsError(false);
+  //   // const resultAction = await dispatch(googleSignIn());
 
-    if (googleSignIn.fulfilled.match(resultAction)) {
-      setIsError(false);
-      router.push("/dashboard");
-    } else if (error) setIsError(true);
-  };
+  //   // // if (googleSignIn.fulfilled.match(resultAction)) {
+  //   // //   setIsError(false);
+  //   // //   router.push("/dashboard");
+  //   // // } else if (error) setIsError(true);
+
+  //   const newWindow = window.open(
+  //     "http://localhost:5000/api/users/google",
+  //     "",
+  //     "width=600,height=600"
+  //   );
+  // };
 
   const validForm = email.length > 1 && password.length > 1;
 
@@ -71,18 +78,19 @@ export default function LoginForm() {
         </p>
       )}
       {/* signin with socials */}
-      <div className="flex flex-col gap-4">
+      {/* <div className="flex flex-col gap-4">
         <div className="divider after:bg-neutral before:bg-neutral">OR</div>
         <div className="flex flex-col gap-4">
-          <button
+          <Link
+            href="http://localhost:5000/api/users/google"
             type="button"
             className="btn flex items-center space-x-2  border-inherit"
-            onClick={handleGoogleSignIn}
+            // onClick={handleGoogleSignIn}
           >
             <FcGoogle className="w-5 h-5" /> <span>Log in with Google</span>
-          </button>
+          </Link>
         </div>
-      </div>
+      </div> */}
     </form>
   );
 }

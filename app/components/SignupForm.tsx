@@ -3,11 +3,11 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "../store";
 import { useRouter } from "next/navigation";
-import { signupUser, googleSignIn } from "../store/slices/authSlice";
+import { signupUser } from "../store/slices/authSlice";
 import "react-international-phone/style.css";
 import Link from "next/link";
 import { FaCheckCircle } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
+// import { FcGoogle } from "react-icons/fc";
 
 const SignupForm: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -51,15 +51,15 @@ const SignupForm: React.FC = () => {
     } else if (signupError) setIsError(true);
   };
 
-  const handleGoogleSignIn = async () => {
-    setIsError(false);
-    const resultAction = await dispatch(googleSignIn());
+  // const handleGoogleSignIn = async () => {
+  //   setIsError(false);
+  //   const resultAction = await dispatch(googleSignIn());
 
-    if (googleSignIn.fulfilled.match(resultAction)) {
-      setIsError(false);
-      router.push("/dashboard");
-    } else if (signupError) setIsError(true);
-  };
+  //   if (googleSignIn.fulfilled.match(resultAction)) {
+  //     setIsError(false);
+  //     router.push("/dashboard");
+  //   } else if (signupError) setIsError(true);
+  // };
 
   const validForm =
     email.length > 1 && password.length > 1 && fullName.length > 1;
@@ -148,7 +148,7 @@ const SignupForm: React.FC = () => {
         </p>
       )}
       {/* signin with socials */}
-      <div className="flex flex-col gap-4">
+      {/* <div className="flex flex-col gap-4">
         <div className="divider after:bg-neutral before:bg-neutral">OR</div>
         <div className="flex flex-col gap-4">
           <button
@@ -159,7 +159,7 @@ const SignupForm: React.FC = () => {
             <FcGoogle className="w-5 h-5" /> <span>Sign up with Google</span>
           </button>
         </div>
-      </div>
+      </div> */}
     </form>
   );
 };

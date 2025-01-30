@@ -18,14 +18,17 @@ import { ToastContainer, toast } from "react-toastify";
 import { Suspense } from "react";
 
 const Dashboard = () => {
-  useAuth();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
+  console.log({ token });
+
+  useAuth(token);
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const auth = useSelector((state: RootState) => state.auth);
 
   const { users } = useSelector((state: RootState) => state.users);
   const { services } = useSelector((state: RootState) => state.services);
-  const searchParams = useSearchParams();
   const state = searchParams.get("state");
   const alert = () => {
     toast(
@@ -81,7 +84,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (!isTokenValid()) {
       dispatch(logout());
-      router.push("/");
+      router.push("/auth");
     }
   }, [dispatch, router]);
 
@@ -89,7 +92,7 @@ const Dashboard = () => {
     return (
       <>
         <ToastContainer />
-        <div className="md:container md:mx-auto md:max-w-4xl">
+        <div className="md:container md:mx-auto md:max-w-4xl ">
           <TopSection user={auth.user} />
           <div>{display()}</div>
           <PointsSection
