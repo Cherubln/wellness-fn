@@ -5,6 +5,8 @@ import { signIn } from "../store/slices/authSlice";
 import { RootState, AppDispatch } from "../store";
 import { useRouter } from "next/navigation";
 import { FaCheckCircle } from "react-icons/fa";
+import Link from "next/link";
+import { FcGoogle } from "react-icons/fc";
 // import { FcGoogle } from "react-icons/fc";
 // import Link from "next/link";
 
@@ -78,7 +80,7 @@ export default function LoginForm() {
         </div>
       )}
       {/* signin with socials */}
-      {/* <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4">
         <div className="divider after:bg-neutral before:bg-neutral">OR</div>
         <div className="flex flex-col gap-4">
           <Link
@@ -87,10 +89,11 @@ export default function LoginForm() {
             className="btn flex items-center space-x-2  border-inherit"
             // onClick={handleGoogleSignIn}
           >
-            <FcGoogle className="w-5 h-5" /> <span>Log in with Google</span>
+            <FcGoogle className="w-5 h-5" />{" "}
+            <span>Continue in with Google</span>
           </Link>
         </div>
-      </div> */}
+      </div>
     </form>
   );
 }

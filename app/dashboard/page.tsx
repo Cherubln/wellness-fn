@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../store";
 import { isTokenValid } from "../utils/auth";
-import { logout } from "../store/slices/authSlice";
+import { logout, scanForPoints } from "../store/slices/authSlice";
 import TopSection from "./TopSection";
 import PointsSection from "./PointsSection";
 import WidgetsSection from "./WidgetsSection";
@@ -20,9 +20,15 @@ import { Suspense } from "react";
 const Dashboard = () => {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
-  console.log({ token });
+  let outsideScannedCode: string | null = null;
+  let qrScanned = false;
+  if (typeof window !== "undefined" && token) {
+    localStorage.setItem("token", token);
+    outsideScannedCode = localStorage.getItem("isScanned");
+    qrScanned = JSON.parse(localStorage.getItem("qrScanned")!).qrScanned;
+  }
 
-  useAuth(token);
+  useAuth();
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const auth = useSelector((state: RootState) => state.auth);
@@ -47,8 +53,7 @@ const Dashboard = () => {
     );
   };
   const display = () => {
-    if (state) {
-      const qrScanned = JSON.parse(decodeURIComponent(state)).qrScanned;
+    if (state && qrScanned) {
       if (qrScanned) {
         return (
           <div>
@@ -60,8 +65,24 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
+    const getScannedPoints = async () => {
+      if (auth.user._id && outsideScannedCode) {
+        const result = await dispatch(
+          scanForPoints({ qrCodeID: outsideScannedCode, userID: auth.user._id })
+        );
+        localStorage.removeItem("isScanned");
+        if (result.payload.error) {
+          toast.error(result.payload.error);
+        } else {
+          alert();
+        }
+      }
+    };
+    if (outsideScannedCode) {
+      getScannedPoints();
+    }
     dispatch(fetchAllUsers());
-  }, [dispatch]);
+  }, [auth.user._id, dispatch, outsideScannedCode]);
 
   useEffect(() => {
     if (state) {
@@ -70,7 +91,10 @@ const Dashboard = () => {
         alert();
       }
     }
-  }, [searchParams, state]);
+    if (outsideScannedCode) {
+      alert();
+    }
+  }, [searchParams, state, outsideScannedCode]);
 
   const leaderboardData = users;
   const [selectedWidget, setSelectedWidget] = useState<string | null>(

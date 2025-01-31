@@ -10,14 +10,14 @@ import {
 import { jwtDecode } from "jwt-decode";
 import { AppDispatch, RootState } from "../store";
 
-const useAuth = (socialToken?: string | null) => {
+const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
   // get user from using the useSelector function
   const user = useSelector((state: RootState) => state.auth.user);
 
   useEffect(() => {
     const fetchData = async () => {
-      const token = socialToken || localStorage.getItem("token");
+      const token = localStorage.getItem("token");
       // decode token to get _id
 
       const decodedToken = jwtDecode<IUser | IServiceProvider>(token!);

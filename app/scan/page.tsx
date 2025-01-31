@@ -9,13 +9,14 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/app/store";
 import { IUser, scanForPoints } from "../store/slices/authSlice";
-import { stat } from "fs";
+import useAuth from "../hooks/useAuth";
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const Scan = () => {
+  useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [qrResult, setQrResult] = useState(null);
+  const [isOutsideScanned, setisOutsideScanned] = useState("");
   const { user, error, ...auth } = useSelector(
     (state: RootState) => state.auth
   );
@@ -39,6 +40,7 @@ const Scan = () => {
       if (resulted.payload.error) {
         setIsError(resulted.payload.error);
       } else {
+        localStorage.setItem("qrScanned", JSON.stringify({ qrScanned: true }));
         router.push(
           `/dashboard?state=${encodeURIComponent(
             JSON.stringify({ qrScanned: true })
@@ -52,7 +54,23 @@ const Scan = () => {
     const id = searchParams.get("id");
 
     if (id) {
-      await handleScan(id);
+      if (!user._id) {
+        setisOutsideScanned(id);
+        return setIsError("Please login to scan");
+      }
+      const resulted = await dispatch(
+        scanForPoints({ qrCodeID: id, userID: user._id! })
+      );
+
+      if (resulted.payload.error) {
+        setIsError(resulted.payload.error);
+      } else {
+        router.push(
+          `/dashboard?state=${encodeURIComponent(
+            JSON.stringify({ qrScanned: true })
+          )}`
+        );
+      }
       return;
     }
   };
@@ -102,7 +120,10 @@ const Scan = () => {
         // add a login button here redirecting to the login page /login
         <div className="py-5 m-auto text-center">
           <span
-            onClick={() => router.push("/")}
+            onClick={() => {
+              router.push(`/auth`);
+              localStorage.setItem("isScanned", isOutsideScanned);
+            }}
             className=" text-secondary/80 hover:text-secondary"
           >
             Login

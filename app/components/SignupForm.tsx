@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "../store";
 import { useRouter } from "next/navigation";
@@ -7,11 +7,14 @@ import { signupUser } from "../store/slices/authSlice";
 import "react-international-phone/style.css";
 import Link from "next/link";
 import { FaCheckCircle } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 // import { FcGoogle } from "react-icons/fc";
 
 const SignupForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState(""); // Added confirmPassword state
+  const [passwordError, setPasswordError] = useState(""); // State for password error message
   const [fullName, setFullName] = useState("");
   const [checked, setChecked] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
@@ -24,9 +27,23 @@ const SignupForm: React.FC = () => {
 
   const { status } = useSelector((state: RootState) => state.auth);
 
+  useEffect(() => {
+    if (confirmPassword && password !== confirmPassword) {
+      setPasswordError("Passwords do not match");
+    } else {
+      setPasswordError("");
+    }
+  }, [password, confirmPassword]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     setIsError(false);
     e.preventDefault();
+
+    if (password !== confirmPassword) {
+      setPasswordError("Passwords do not match");
+      return;
+    }
+
     const generateUsername = (fullName: string) => {
       const baseUsername = fullName.toLowerCase().split(" ")[0].slice(0, 8);
       const randomPart = Math.floor(Math.random() * 1000).toString();
@@ -51,18 +68,12 @@ const SignupForm: React.FC = () => {
     } else if (signupError) setIsError(true);
   };
 
-  // const handleGoogleSignIn = async () => {
-  //   setIsError(false);
-  //   const resultAction = await dispatch(googleSignIn());
-
-  //   if (googleSignIn.fulfilled.match(resultAction)) {
-  //     setIsError(false);
-  //     router.push("/dashboard");
-  //   } else if (signupError) setIsError(true);
-  // };
-
   const validForm =
-    email.length > 1 && password.length > 1 && fullName.length > 1;
+    email.length > 1 &&
+    password.length > 1 &&
+    confirmPassword.length > 1 &&
+    fullName.length > 1 &&
+    !passwordError;
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -81,6 +92,17 @@ const SignupForm: React.FC = () => {
           className="input input-bordered w-full text-sm"
           onChange={(e) => setPassword(e.target.value)}
         />
+      </div>
+      <div className="w-full">
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          className="input input-bordered w-full text-sm"
+          onChange={(e) => setConfirmPassword(e.target.value)}
+        />
+        {passwordError && (
+          <small className="text-red-500">{passwordError}</small>
+        )}
       </div>
       <div className="w-full">
         <input
@@ -111,7 +133,7 @@ const SignupForm: React.FC = () => {
         type="submit"
         disabled={signupStatus === "loading" || !checked || !validForm}
         className={`btn w-full self-center bg-secondary/80 hover:bg-secondary border-none text-white disabled:bg-secondary/50 disabled:cursor-not-allowed disabled:text-neutral/60
-          `}
+    `}
       >
         Register
       </button>
@@ -148,18 +170,20 @@ const SignupForm: React.FC = () => {
         </p>
       )}
       {/* signin with socials */}
-      {/* <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4">
         <div className="divider after:bg-neutral before:bg-neutral">OR</div>
         <div className="flex flex-col gap-4">
-          <button
+          <Link
+            href="http://localhost:5000/api/users/google"
             type="button"
-            className="btn flex items-center space-x-2  border-inherit "
-            onClick={handleGoogleSignIn}
+            className="btn flex items-center space-x-2  border-inherit"
+            // onClick={handleGoogleSignIn}
           >
-            <FcGoogle className="w-5 h-5" /> <span>Sign up with Google</span>
-          </button>
+            <FcGoogle className="w-5 h-5" />{" "}
+            <span>Continue in with Google</span>
+          </Link>
         </div>
-      </div> */}
+      </div>
     </form>
   );
 };
