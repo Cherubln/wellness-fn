@@ -14,6 +14,8 @@ const ServicesBoard = ({
   role: string;
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const { services, status } = useSelector(
     (state: RootState) => state.services
   );
@@ -23,6 +25,20 @@ const ServicesBoard = ({
     if (isModalOpen === false)
       dispatch(fetchServices(role !== "user" ? providerId : undefined));
   }, [dispatch, isModalOpen, providerId, role]);
+
+  const filteredServices = services.filter(
+    (service) =>
+      service.activityName.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      (categoryFilter ? service.category === categoryFilter : true)
+  );
+
+  const serviceCategories = [
+    { id: 1, name: "Physical Activities" },
+    { id: 2, name: "Diagnostic services" },
+    { id: 3, name: "Mental wellness" },
+    { id: 4, name: "Reward partners" },
+    { id: 5, name: "Nutrition" },
+  ];
 
   return (
     <div className="p-4 bg-base-100 ">
@@ -57,9 +73,42 @@ const ServicesBoard = ({
             </div>
           )}
           <div className="flex flex-col sm:flex-row gap-4 flex-wrap mt-8">
-            {services.map((entry) => (
-              <ServiceCard key={entry._id} service={entry} onEdit={() => {}} />
-            ))}
+            <div className="flex  gap-2 justify-between items-center">
+              {/* Search by name input */}
+              <input
+                type="text"
+                placeholder="Search by name"
+                className="input input-bordered mb-4 w-1/2 "
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {/* Filter by category select element */}
+              <select
+                className="select select-bordered mb-4 w-1/2 "
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
+                <option value="">All Categories</option>
+                {serviceCategories.map((cat) => {
+                  return (
+                    <option key={cat.id} value={cat.name}>
+                      {cat.name}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+            {filteredServices.length > 0 ? (
+              filteredServices.map((entry) => (
+                <ServiceCard
+                  key={entry._id}
+                  service={entry}
+                  onEdit={() => {}}
+                />
+              ))
+            ) : (
+              <div className="my-1 py-10 text-center">No activites found</div>
+            )}
           </div>
         </div>
       ) : status === "loading" ? (

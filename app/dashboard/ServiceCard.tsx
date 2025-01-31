@@ -131,7 +131,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
           <div className="mt-4">
             <span className="text-neutral capitalize">Brought to you By </span>
             <span className="font-bold text-black">
-              {service.provider.name}
+              {service?.provider?.name}
             </span>
           </div>
         ) : (

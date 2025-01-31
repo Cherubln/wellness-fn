@@ -179,8 +179,7 @@ const SignupForm: React.FC = () => {
             className="btn flex items-center space-x-2  border-inherit"
             // onClick={handleGoogleSignIn}
           >
-            <FcGoogle className="w-5 h-5" />{" "}
-            <span>Continue in with Google</span>
+            <FcGoogle className="w-5 h-5" /> <span>Continue with Google</span>
           </Link>
         </div>
       </div>
