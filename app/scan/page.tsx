@@ -75,9 +75,8 @@ const Scan = () => {
     }
   };
   useEffect(() => {
-    setIsError("");
     handleParams();
-  }, []);
+  }, [user]);
 
   return (
     <div className="py-4">
