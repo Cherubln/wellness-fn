@@ -17,7 +17,7 @@ const Scan = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isOutsideScanned, setisOutsideScanned] = useState("");
-  const { user, error, ...auth } = useSelector(
+  const { user, status, error, ...auth } = useSelector(
     (state: RootState) => state.auth
   );
   const [isError, setIsError] = useState("");
@@ -77,6 +77,14 @@ const Scan = () => {
   useEffect(() => {
     handleParams();
   }, [user]);
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="loading loading-ring loading-lg"></span>
+      </div>
+    );
+  }
 
   return (
     <div className="py-4">
