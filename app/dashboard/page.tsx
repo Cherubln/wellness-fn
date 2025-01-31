@@ -25,7 +25,7 @@ const Dashboard = () => {
   if (typeof window !== "undefined" && token) {
     localStorage.setItem("token", token);
     outsideScannedCode = localStorage.getItem("isScanned");
-    qrScanned = JSON.parse(localStorage.getItem("qrScanned")!).qrScanned;
+    qrScanned = JSON.parse(localStorage.getItem("qrScanned")!)?.qrScanned;
   }
 
   useAuth();

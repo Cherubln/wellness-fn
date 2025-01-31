@@ -72,7 +72,7 @@ const ServicesBoard = ({
               />
             </div>
           )}
-          <div className="flex flex-col sm:flex-row gap-4 flex-wrap mt-8">
+          <div className="flex flex-col  gap-4 flex-wrap mt-8">
             <div className="flex  gap-2 justify-between items-center">
               {/* Search by name input */}
               <input
@@ -98,17 +98,19 @@ const ServicesBoard = ({
                 })}
               </select>
             </div>
-            {filteredServices.length > 0 ? (
-              filteredServices.map((entry) => (
-                <ServiceCard
-                  key={entry._id}
-                  service={entry}
-                  onEdit={() => {}}
-                />
-              ))
-            ) : (
-              <div className="my-1 py-10 text-center">No activites found</div>
-            )}
+            <div className="flex flex-wrap justify-center gap-4 w-full">
+              {filteredServices.length > 0 ? (
+                filteredServices.map((entry) => (
+                  <ServiceCard
+                    key={entry._id}
+                    service={entry}
+                    onEdit={() => {}}
+                  />
+                ))
+              ) : (
+                <div className="my-1 py-10 text-center">No activites found</div>
+              )}
+            </div>
           </div>
         </div>
       ) : status === "loading" ? (

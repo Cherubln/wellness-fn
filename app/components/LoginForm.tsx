@@ -84,7 +84,7 @@ export default function LoginForm() {
         <div className="divider after:bg-neutral before:bg-neutral">OR</div>
         <div className="flex flex-col gap-4">
           <Link
-            href="http://localhost:5000/api/users/google"
+            href={`${process.env.NEXT_PUBLIC_API_URL}/api/users/google`}
             type="button"
             className="btn flex items-center space-x-2  border-inherit"
             // onClick={handleGoogleSignIn}
