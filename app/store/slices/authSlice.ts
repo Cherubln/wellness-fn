@@ -203,7 +203,7 @@ export const createQRCode = createAsyncThunk(
   async (qrCodeData: { name: string; owner: string }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${apiUrl}/api/qrcodes/create`,
+        `${apiUrl}/api/qrcodes/create?provider=${qrCodeData.owner}`,
         qrCodeData
       );
       return response.data;
@@ -552,19 +552,18 @@ const authSlice = createSlice({
         (
           state,
           action: PayloadAction<{
-            _id: string;
-            name: string;
-            image: string;
-            updatedAt: string;
+            qrcode: {
+              _id: string;
+              name: string;
+              image: string;
+              owner: string;
+              updatedAt: string;
+            };
           }>
         ) => {
           state.status = "succeeded";
           // Handle the created QR code data if needed
-          (state.user as IServiceProvider).qrCode.image = action.payload.image;
-          (state.user as IServiceProvider).qrCode.name = action.payload.name;
-          (state.user as IServiceProvider).qrCode.updatedAt =
-            action.payload.updatedAt;
-          (state.user as IServiceProvider).qrCode._id = action.payload._id;
+          (state.user as IServiceProvider).qrCode = action.payload.qrcode;
         }
       )
       .addCase(
