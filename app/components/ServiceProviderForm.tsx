@@ -229,7 +229,6 @@ export default function ServiceProviderForm() {
               className="input input-bordered w-full"
               value={whatsappLink}
               onChange={(e) => handleInputChange(e, "whatsapp")}
-              required
             />
             {isTyping.whatsapp && !isValidLink(whatsappLink, "whatsapp") && (
               <span className="text-red-400 text-sm">
@@ -251,7 +250,6 @@ export default function ServiceProviderForm() {
               className="input input-bordered w-full"
               value={instagramLink}
               onChange={(e) => handleInputChange(e, "instagram")}
-              required
             />
             {isTyping.instagram && !isValidLink(instagramLink, "instagram") && (
               <span className="text-red-400 text-sm">
