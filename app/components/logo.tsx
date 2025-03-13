@@ -1,0 +1,31 @@
+import Image from "next/image";
+import React from "react";
+
+export function LogoComponent() {
+  return (
+    <div>
+      <Image
+        src={"/images/3.png"}
+        alt="biggest health challenge"
+        width={150}
+        height={100}
+        className="object-contain"
+      />
+    </div>
+  );
+}
+export function BimaComponent({ width, height }: { width:number; height:number }) {
+  return (
+    <div>
+      <Image
+        src={"/images/5.jpg"}
+        alt="biggest health challenge"
+        width={width}
+        height={height}
+        className="object-contain h-full w-full"
+      />
+    </div>
+  );
+}
+
+
